@@ -1,6 +1,7 @@
 pub struct CoreRequest {
     pub method: String,
     pub path: String,
-    pub headers: std::collections::HashMap<String, String>,
+    pub headers: crate::Headers
     pub body: Vec<u8>,
 }
+
