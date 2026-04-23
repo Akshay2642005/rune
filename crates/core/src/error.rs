@@ -20,3 +20,5 @@ impl std::fmt::Display for RuneError {
         }
     }
 }
+
+impl std::error::Error for RuneError {}
