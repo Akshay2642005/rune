@@ -5,3 +5,10 @@ version = 4
 [[package]]
 name = "rune-core"
 version = "0.1.0"
+
+[[package]]
+name = "rune-registry"
+version = "0.1.0"
+dependencies = [
+ "rune-core",
+]
