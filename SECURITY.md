@@ -1,11 +1,3 @@
-
----
-
-# 📄 `SECURITY.md`
-
-Important since you’re building a runtime system:
-
-```md
 # Security Policy
 
 ## Supported Versions
