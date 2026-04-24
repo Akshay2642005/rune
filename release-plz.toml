@@ -1,6 +1,6 @@
 [workspace]
-git_only = false
-publish = true
+git_only = true
+publish = false
 release_always = false
 semver_check = false
 changelog_update = false
