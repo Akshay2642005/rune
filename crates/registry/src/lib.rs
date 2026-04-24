@@ -23,12 +23,20 @@ impl FunctionStore for InMemoryFunctionStore {
         &self,
         route: &str,
     ) -> Result<Option<rune_core::FunctionMeta>, rune_core::RuneError> {
-        let map = self.functions.read().unwrap();
+        let map = self.functions.read().map_err(|_| {
+            rune_core::RuneError::InternalError(
+                "function store lock poisoned while reading".to_string(),
+            )
+        })?;
         Ok(map.get(route).cloned())
     }
 
     fn register(&self, meta: rune_core::FunctionMeta) -> Result<(), rune_core::RuneError> {
-        let mut map = self.functions.write().unwrap();
+        let mut map = self.functions.write().map_err(|_| {
+            rune_core::RuneError::InternalError(
+                "function store lock poisoned while writing".to_string(),
+            )
+        })?;
         map.insert(meta.route.clone(), meta);
         Ok(())
     }
