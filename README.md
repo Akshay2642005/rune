@@ -14,7 +14,7 @@ It provides secure, resource-limited execution with a contract-first architectur
 
 ## Status
 
-Alpha vertical slice working: deploy with `rune-cli`, then serve with the runtime.
+Alpha vertical slice working: deploy with `rune`, then serve with `rune-server`.
 
 ## WASM ABI
 See [docs/abi.md](docs/abi.md) for the Rune ↔ WASM interface contract that guest modules must implement.
@@ -37,13 +37,13 @@ Tooling             ████░░░░░░  (40%)
 Deploy a function with the CLI:
 
 ```bash
-cargo run -p rune-cli -- deploy --id hello --route /hello crates/runtime/tests/fixtures/hello.wasm
+cargo run -p runectl -- deploy --id hello --route /hello crates/runtime/tests/fixtures/hello.wasm
 ```
 
 Start the runtime server:
 
 ```bash
-cargo run
+cargo run -p rune-server
 ```
 
 Invoke the deployed function:
@@ -55,6 +55,13 @@ curl http://127.0.0.1:3000/hello
 For `v0.1.0-alpha`, the CLI and server communicate through local state in `.rune/`.
 The future client/server architecture can replace this with a network API without
 changing the basic CLI workflow.
+
+For crates.io installs, the intended commands are:
+
+```bash
+cargo install runectl
+cargo install rune-server
+```
 
 ## Releases
 

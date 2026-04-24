@@ -7,7 +7,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
-- Added the `rune-cli` deploy flow that copies wasm artifacts into `.rune`,
+- Added the `rune` CLI deploy flow that copies wasm artifacts into `.rune`,
   persists deployment metadata, and prepares functions for server startup.
 - Added server bootstrap loading from `.rune/deployments.json` so deployed
   functions can be served without hardcoded startup registration.

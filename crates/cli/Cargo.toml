@@ -1,7 +1,15 @@
 [package]
-name = "rune-cli"
+name = "runectl"
 version = "0.1.0-alpha"
 edition = "2024"
+license = "MIT"
+description = "Deployment CLI for the Rune platform."
+homepage = "https://github.com/Akshay2642005/rune"
+repository = "https://github.com/Akshay2642005/rune"
+readme = "../../README.md"
+keywords = ["cli", "wasm", "deploy", "runtime"]
+categories = ["command-line-utilities", "wasm"]
+default-run = "rune"
 
 [dependencies]
 anyhow = { workspace = true }
@@ -9,3 +17,7 @@ clap = { version = "4.5", features = ["derive"] }
 serde_json = { workspace = true }
 
 rune-core = { workspace = true }
+
+[[bin]]
+name = "rune"
+path = "src/main.rs"

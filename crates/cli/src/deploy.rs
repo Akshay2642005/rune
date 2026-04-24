@@ -3,9 +3,9 @@ use std::{
     path::Path,
 };
 
-use anyhow::{bail, Context};
+use anyhow::{Context, bail};
 use rune_core::{
-    DeploymentManifest, FunctionMeta, DEPLOYMENTS_MANIFEST_PATH, FUNCTIONS_DIR, RUNE_STATE_DIR,
+    DEPLOYMENTS_MANIFEST_PATH, DeploymentManifest, FUNCTIONS_DIR, FunctionMeta, RUNE_STATE_DIR,
 };
 
 pub fn deploy_function(id: &str, route: &str, source_wasm: &Path) -> anyhow::Result<FunctionMeta> {

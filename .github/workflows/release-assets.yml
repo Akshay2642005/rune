@@ -34,19 +34,19 @@ jobs:
       - name: Upload server binary
         uses: taiki-e/upload-rust-binary-action@v1
         with:
-          bin: rune
+          bin: rune-server
           target: ${{ matrix.target }}
           manifest-path: ./Cargo.toml
-          archive: rune-${{ matrix.target }}
+          archive: rune-server-${{ matrix.target }}
           checksum: sha256
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload CLI binary
         uses: taiki-e/upload-rust-binary-action@v1
         with:
-          bin: rune-cli
+          bin: rune
           target: ${{ matrix.target }}
           manifest-path: ./crates/cli/Cargo.toml
-          archive: rune-cli-${{ matrix.target }}
+          archive: rune-${{ matrix.target }}
           checksum: sha256
           token: ${{ secrets.GITHUB_TOKEN }}
