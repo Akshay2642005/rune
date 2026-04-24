@@ -3,7 +3,7 @@ name: release-plz
 on:
   push:
     branches:
-      - main
+      - master
 
 permissions:
   contents: write
