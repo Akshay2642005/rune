@@ -39,6 +39,9 @@ impl Headers {
     pub fn get(&self, name: &str) -> Option<&str> {
         self.get_all(name).into_iter().next()
     }
+    pub fn iter(&self) -> impl Iterator<Item = &(String, String)> {
+        self.inner.iter()
+    }
 }
 
 impl From<Vec<(String, String)>> for Headers {

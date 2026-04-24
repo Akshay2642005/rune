@@ -18,3 +18,16 @@ Early development — architecture-first implementation in progress.
 
 ## WASM ABI
 See [docs/abi.md](docs/abi.md) for the Rune ↔ WASM interface contract that guest modules must implement.
+
+
+## Milestone
+
+Core runtime        ██████████  (done)
+
+Registry            █████████░
+
+ABI                 ████████░░
+
+HTTP                ░░░░░░░░░░
+
+Tooling             ░░░░░░░░░░

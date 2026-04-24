@@ -39,14 +39,13 @@ impl Runtime {
             ));
         }
 
-        let wasm_resp: rune_core::WasmResponse = serde_json::from_slice(&resp_bytes).map_err(
-            |e| {
+        let wasm_resp: rune_core::WasmResponse =
+            serde_json::from_slice(&resp_bytes).map_err(|e| {
                 rune_core::RuneError::ExecutionError(format!(
                     "failed to parse JSON response from function '{}' (route '{}'): {}",
                     func.id, req.path, e
                 ))
-            },
-        )?;
+            })?;
 
         if wasm_resp.status < 100 || wasm_resp.status > 599 {
             return Err(rune_core::RuneError::ExecutionError(format!(
@@ -102,3 +101,4 @@ mod tests {
         assert_eq!(res.body, b"hello");
     }
 }
+
