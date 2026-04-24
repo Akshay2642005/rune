@@ -10,5 +10,5 @@ pub use config::RuntimeConfig;
 pub use error::RuneError;
 pub use functions::FunctionMeta;
 pub use request::CoreRequest;
-pub use response::CoreResponse;
+pub use response::{CoreResponse, WasmResponse};
 pub use store::FunctionStore;

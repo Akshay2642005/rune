@@ -1,8 +1,17 @@
 [workspace]
-members = ["crates/core", "crates/registry"]
+members = ["crates/core", "crates/registry", "crates/runtime"]
+exclude = ["examples/hello"]
 resolver = "3"
 
-[workspace.dependencies]
 
+
+
+[workspace.dependencies]
+wasmtime = "44"
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 
 rune-core = {path = "crates/core"}
+rune-registry = {path = "crates/registry"}
+rune-runtime = {path = "crates/runtime"}
