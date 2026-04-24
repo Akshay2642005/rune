@@ -1,6 +1,7 @@
-use wasmtime::{Config, Engine, Instance, Module, Store};
+use wasmtime::{Config, Engine, Instance, Module, ResourceLimiter, Store, StoreLimitsBuilder};
 
 const MAX_RESPONSE_SIZE: usize = 1024 * 1024;
+const MAX_MEMORY_BYTES: usize = 64 * 1024 * 1024; // 64 MiB per module
 
 fn pages_needed(required: usize, current: usize) -> u64 {
     let page_size: usize = 65536;
@@ -24,7 +25,11 @@ impl WasmExecutor {
     pub fn execute(&self, wasm_path: &str, input: &[u8]) -> anyhow::Result<Vec<u8>> {
         let module = Module::from_file(&self.engine, wasm_path)?;
 
-        let mut store = Store::new(&self.engine, ());
+        let limits = StoreLimitsBuilder::new()
+            .memory_size(MAX_MEMORY_BYTES)
+            .build();
+        let mut store = Store::new(&self.engine, limits);
+        store.limiter(|state| state as &mut dyn ResourceLimiter);
         store.set_fuel(self.fuel)?;
 
         let instance = Instance::new(&mut store, &module, &[])?;
