@@ -15,6 +15,12 @@ It provides secure, resource-limited execution with a contract-first architectur
 ## Status
 
 Alpha vertical slice working: deploy with `rune`, then serve with `rune-server`.
+The current alpha contract is intentionally small:
+
+- `runectl` and `rune-server` communicate through local state in `.rune/`
+- the runtime enforces fuel and linear-memory limits
+- wall-clock timeout cancellation is not implemented yet
+- server startup aborts if the persisted deployment manifest is invalid or points at missing wasm artifacts
 
 ## WASM ABI
 See [docs/abi.md](docs/abi.md) for the Rune ↔ WASM interface contract that guest modules must implement.
@@ -34,10 +40,16 @@ Tooling             ████░░░░░░  (40%)
 
 ## Alpha Flow
 
-Deploy a function with the CLI:
+Build the example function:
 
 ```bash
-cargo run -p runectl -- deploy --id hello --route /hello crates/runtime/tests/fixtures/hello.wasm
+cargo build --manifest-path examples/hello/Cargo.toml --target wasm32-unknown-unknown
+```
+
+Deploy the compiled wasm with the CLI:
+
+```bash
+cargo run -p runectl -- deploy --id hello --route /hello examples/hello/target/wasm32-unknown-unknown/debug/hello.wasm
 ```
 
 Start the runtime server:
@@ -52,16 +64,16 @@ Invoke the deployed function:
 curl http://127.0.0.1:3000/hello
 ```
 
-For `v0.1.0-alpha`, the CLI and server communicate through local state in `.rune/`.
-The future client/server architecture can replace this with a network API without
-changing the basic CLI workflow.
+Expected response:
 
-For crates.io installs, the intended commands are:
-
-```bash
-cargo install runectl
-cargo install rune-server
+```text
+hello
 ```
+
+In the current alpha flow, the CLI and server communicate through local state in
+`.rune/`. The future client/server architecture can replace this with a network
+API without changing the basic CLI workflow.
+
 
 ## Releases
 
