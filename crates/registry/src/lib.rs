@@ -50,8 +50,6 @@ impl FunctionStore for InMemoryFunctionStore {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::Arc;
-    use std::thread;
 
     #[test]
     fn register_and_get_function() {
