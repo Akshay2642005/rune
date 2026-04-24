@@ -15,3 +15,6 @@ It provides secure, resource-limited execution with a contract-first architectur
 ## Status
 
 Early development — architecture-first implementation in progress.
+
+## WASM ABI
+See [docs/abi.md](docs/abi.md) for the Rune ↔ WASM interface contract that guest modules must implement.

@@ -1,0 +1,14 @@
+[package]
+name = "rune-runtime"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+wasmtime = { workspace = true }
+anyhow = { workspace = true }
+serde_json = { workspace = true }
+rune-core = { workspace = true }
+parking_lot = { workspace = true }
+
+[dev-dependencies]
+rune-registry = { workspace = true }
