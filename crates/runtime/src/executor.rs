@@ -56,33 +56,28 @@ impl WasmExecutor {
         let out_ptr = out_ptr as usize;
 
         let mut len_buf = [0u8; 4];
-
-        let required = out_ptr + 4;
         let current = memory.data_size(&store);
+        let len_end = out_ptr
+            .checked_add(4)
+            .ok_or_else(|| anyhow::anyhow!("response pointer overflow"))?;
 
-        if required > current {
-            let pages = pages_needed(required, current);
-            if pages > 0 {
-                memory.grow(&mut store, pages)?;
-            }
+        if len_end > current {
+            return Err(anyhow::anyhow!("response length header out of bounds"));
         }
 
         memory.read(&mut store, out_ptr, &mut len_buf)?;
 
         let resp_len = u32::from_le_bytes(len_buf) as usize;
-
-        let required = out_ptr + 4 + resp_len;
-        let current = memory.data_size(&store);
-
-        if required > current {
-            let pages = pages_needed(required, current);
-            if pages > 0 {
-                memory.grow(&mut store, pages)?;
-            }
-        }
-
         if resp_len > MAX_RESPONSE_SIZE {
             return Err(anyhow::anyhow!("response too large"));
+        }
+
+        let resp_end = len_end
+            .checked_add(resp_len)
+            .ok_or_else(|| anyhow::anyhow!("response length overflow"))?;
+
+        if resp_end > current {
+            return Err(anyhow::anyhow!("response body out of bounds"));
         }
         let mut resp = vec![0u8; resp_len];
         memory.read(&mut store, out_ptr + 4, &mut resp)?;
