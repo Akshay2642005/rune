@@ -17,6 +17,9 @@ pub extern "C" fn handler(ptr: i32, len: i32) -> i32 {
 
     let total_len = 4 + response.len();
     let out_ptr = alloc(total_len as i32);
+    if out_ptr == 0 {
+        return 0;
+    }
 
     if out_ptr == 0 {
         return 0;

@@ -932,6 +932,7 @@ dependencies = [
 name = "rune-core"
 version = "0.1.0"
 dependencies = [
+ "base64",
  "serde",
  "serde_bytes",
  "serde_json",

@@ -1,3 +1,4 @@
+mod base64_serde;
 mod config;
 mod error;
 mod functions;

@@ -12,6 +12,7 @@ WASM modules must export the following functions:
 ### handler
 
 ```rust
+extern "C" fn alloc(size: i32) -> i32
 extern "C" fn handler(ptr: i32, len: i32) -> i32
 ```
 
@@ -31,7 +32,7 @@ The main request handler. The host calls this function with a pointer and length
   "method": "GET",
   "path": "/hello",
   "headers": [["content-type", "application/json"]],
-  "body": [byte array]
+  "body": "aGVsbG8="
 }
 ```
 
@@ -40,7 +41,7 @@ The main request handler. The host calls this function with a pointer and length
 {
   "status": 200,
   "headers": [["content-type", "text/plain"]],
-  "body": [byte array]
+  "body": "aGVsbG8="
 }
 ```
 
@@ -68,3 +69,33 @@ Allocates a buffer in guest memory and returns a pointer to it.
 - If `alloc` is not exported, the host will use a hardcoded reserved region starting at offset 8
 - Implementations should return `0` for invalid size values (e.g., `size <= 0`)
 - The host validates returned pointers and treats `0` or negative values as errors
+
+### Request payload (`CoreRequest`)
+
+The host serializes the `CoreRequest` as JSON and writes it into the guest
+memory at the pointer returned by `alloc`. The `body` field is base64-encoded
+bytes (a JSON string). Headers are serialized as an array of `[name, value]`
+pairs. The `handler` function is invoked with:
+
+- `ptr`: guest pointer to the start of the JSON request bytes
+- `len`: length (in bytes) of the JSON request
+
+### Response payload (`WasmResponse`)
+
+`handler` returns a guest pointer to the response layout:
+
+- First 4 bytes: little-endian `u32` response length
+- Next `len` bytes: JSON-serialized `WasmResponse` where `body` is a base64
+  string and `headers` (if present) is an array of `[name, value]` pairs
+
+### Error semantics
+
+- Returning `0` from `alloc` or `handler` is an invalid pointer and treated as a
+  fatal error by the host.
+
+### Memory lifetime requirements
+
+- The guest must ensure the returned response region remains valid for the host
+  to read.
+- The host will **not** call `free`; the guest is responsible for managing any
+  memory it allocates.
