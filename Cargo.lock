@@ -1219,31 +1219,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rune"
-version = "0.1.0-alpha"
-dependencies = [
- "anyhow",
- "axum",
- "bytes",
- "http-body-util",
- "rune-core",
- "rune-registry",
- "rune-runtime",
- "serde_json",
- "tokio",
-]
-
-[[package]]
-name = "rune-cli"
-version = "0.1.0-alpha"
-dependencies = [
- "anyhow",
- "clap",
- "rune-core",
- "serde_json",
-]
-
-[[package]]
 name = "rune-core"
 version = "0.1.0-alpha"
 dependencies = [
@@ -1270,6 +1245,31 @@ dependencies = [
  "rune-registry",
  "serde_json",
  "wasmtime",
+]
+
+[[package]]
+name = "rune-server"
+version = "0.1.0-alpha"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bytes",
+ "http-body-util",
+ "rune-core",
+ "rune-registry",
+ "rune-runtime",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
+name = "runectl"
+version = "0.1.0-alpha"
+dependencies = [
+ "anyhow",
+ "clap",
+ "rune-core",
+ "serde_json",
 ]
 
 [[package]]

@@ -4,10 +4,9 @@ mod handler;
 
 use crate::{bootstrap::load_deployments, handler::handler};
 use axum::{routing::any, Router};
-use std::sync::Arc;
-
 use rune_registry::InMemoryFunctionStore;
 use rune_runtime::Runtime;
+use std::sync::Arc;
 
 #[tokio::main]
 async fn main() {

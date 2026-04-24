@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use clap::{Parser, Subcommand};
 
 #[derive(Debug, Parser)]
-#[command(name = "rune-cli")]
+#[command(name = "rune")]
 #[command(about = "Rune deployment CLI")]
 struct Cli {
     #[command(subcommand)]
