@@ -6,9 +6,11 @@ pub struct CoreResponse {
     pub body: Vec<u8>,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct WasmResponse {
     pub status: u16,
     pub headers: Option<Vec<(String, String)>>,
-    pub body: String,
+    #[serde(with = "serde_bytes")]
+    pub body: Vec<u8>,
 }

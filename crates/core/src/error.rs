@@ -6,6 +6,7 @@ pub enum RuneError {
     OutOfFuel,
     InvalidRequest(String),
     InternalError(String),
+    DuplicateRoute { route: String },
 }
 
 impl std::fmt::Display for RuneError {
@@ -17,6 +18,7 @@ impl std::fmt::Display for RuneError {
             Self::OutOfFuel => f.write_str("out of fuel"),
             Self::InvalidRequest(msg) => f.write_str(&format!("invalid request: {}", msg)),
             Self::InternalError(msg) => f.write_str(&format!("internal error: {}", msg)),
+            Self::DuplicateRoute { route } => f.write_str(&format!("duplicate route: {}", route)),
         }
     }
 }

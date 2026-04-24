@@ -8,5 +8,7 @@ wasmtime = { workspace = true }
 anyhow = { workspace = true }
 serde_json = { workspace = true }
 rune-core = { workspace = true }
-rune-registry = { workspace = true }
+parking_lot = { workspace = true }
 
+[dev-dependencies]
+rune-registry = { workspace = true }

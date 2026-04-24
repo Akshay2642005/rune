@@ -5,6 +5,6 @@ pub trait FunctionStore: Send + Sync {
     /// Register a function.
     ///
     /// Implementations must be internally synchronized (e.g., Mutex/RwLock),
-    /// as this method takes `&self` and may be called concurrently
+    /// as this method takes `&self` and may be called concurrently.
     fn register(&self, func: FunctionMeta) -> Result<(), RuneError>;
 }

@@ -1,11 +1,22 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 pub type HeaderName = String;
 pub type HeaderValue = String;
 
 #[derive(Clone, Debug, Default, Serialize)]
+#[serde(transparent)]
 pub struct Headers {
     inner: Vec<(HeaderName, HeaderValue)>,
+}
+
+impl<'de> Deserialize<'de> for Headers {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let raw: Vec<(String, String)> = Vec::deserialize(deserializer)?;
+        Ok(Headers::from(raw))
+    }
 }
 
 impl Headers {

@@ -6,8 +6,11 @@ pub struct Runtime {
 }
 
 impl Runtime {
-    pub fn new(store: Arc<dyn rune_core::FunctionStore>) -> Result<Self, rune_core::RuneError> {
-        let executor = crate::WasmExecutor::new(1_000_000)
+    pub fn new(
+        store: Arc<dyn rune_core::FunctionStore>,
+        config: rune_core::RuntimeConfig,
+    ) -> Result<Self, rune_core::RuneError> {
+        let executor = crate::WasmExecutor::new(config.max_fuel)
             .map_err(|e| rune_core::RuneError::ExecutionError(e.to_string()))?;
 
         Ok(Self { store, executor })
@@ -36,13 +39,26 @@ impl Runtime {
             ));
         }
 
-        let wasm_resp: rune_core::WasmResponse = serde_json::from_slice(&resp_bytes)
-            .map_err(|e| rune_core::RuneError::ExecutionError(e.to_string()))?;
+        let wasm_resp: rune_core::WasmResponse = serde_json::from_slice(&resp_bytes).map_err(
+            |e| {
+                rune_core::RuneError::ExecutionError(format!(
+                    "failed to parse JSON response from function '{}' (route '{}'): {}",
+                    func.id, req.path, e
+                ))
+            },
+        )?;
+
+        if wasm_resp.status < 100 || wasm_resp.status > 599 {
+            return Err(rune_core::RuneError::ExecutionError(format!(
+                "invalid HTTP status {} from function '{}' (route '{}')",
+                wasm_resp.status, func.id, req.path
+            )));
+        }
 
         Ok(rune_core::CoreResponse {
             status: wasm_resp.status,
             headers: wasm_resp.headers.unwrap_or_default().into(),
-            body: wasm_resp.body.into_bytes(),
+            body: wasm_resp.body,
         })
     }
 }
@@ -67,7 +83,12 @@ mod tests {
 
         store.register(func).unwrap();
 
-        let runtime = Runtime::new(Arc::new(store)).unwrap();
+        let config = rune_core::RuntimeConfig {
+            max_fuel: 1_000_000,
+            max_memory_bytes: 64 * 1024 * 1024,
+            request_timeout_ms: 5000,
+        };
+        let runtime = Runtime::new(Arc::new(store), config).unwrap();
 
         let req = CoreRequest {
             method: "GET".into(),

@@ -1,5 +1,8 @@
 #[unsafe(no_mangle)]
 pub extern "C" fn alloc(size: i32) -> i32 {
+    if size <= 0 {
+        return 0;
+    }
     let mut buf = vec![0; size as usize];
     let ptr = buf.as_mut_ptr();
     std::mem::forget(buf);
@@ -10,10 +13,14 @@ pub extern "C" fn alloc(size: i32) -> i32 {
 pub extern "C" fn handler(ptr: i32, len: i32) -> i32 {
     let _input = unsafe { std::slice::from_raw_parts(ptr as *const u8, len as usize) };
 
-    let response = b"{\"status\":200,\"body\":\"hello\"}";
+    let response = b"{\"status\":200,\"body\":[104,101,108,108,111]}";
 
     let total_len = 4 + response.len();
     let out_ptr = alloc(total_len as i32);
+
+    if out_ptr == 0 {
+        return 0;
+    }
 
     unsafe {
         let len_bytes = (response.len() as u32).to_le_bytes();
