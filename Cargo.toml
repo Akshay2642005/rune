@@ -13,7 +13,7 @@ default-run = "rune-server"
 
 [workspace]
 members = ["crates/core", "crates/registry", "crates/cli", "crates/runtime"]
-exclude = ["examples/hello"]
+exclude = ["examples/hello", "examples/wasm_web"]
 resolver = "3"
 
 
@@ -39,7 +39,14 @@ serde_json = "1.0"
 serde_bytes = "0.11"
 parking_lot = "0.12"
 base64 = "0.22"
+tempfile = "3.15"
+wat = "1.240"
 
 rune-core = { version = "0.1.0-alpha", path = "crates/core" }
 rune-registry = { version = "0.1.0-alpha", path = "crates/registry" }
 rune-runtime = { version = "0.1.0-alpha", path = "crates/runtime" }
+runectl = { version = "0.1.0-alpha", path = "crates/cli" }
+
+[dev-dependencies]
+runectl = { workspace = true }
+tempfile = { workspace = true }

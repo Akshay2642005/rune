@@ -1,9 +1,11 @@
+use anyhow::Context;
 use parking_lot::Mutex;
 use std::collections::HashMap;
-use wasmtime::{Config, Engine, Instance, Module, ResourceLimiter, Store, StoreLimitsBuilder};
+use wasmtime::{
+    Config, Engine, Instance, Module, ResourceLimiter, Store, StoreLimitsBuilder, Trap,
+};
 
 const MAX_RESPONSE_SIZE: usize = 1024 * 1024;
-const MAX_MEMORY_BYTES: usize = 64 * 1024 * 1024; // 64 MiB per module
 
 fn pages_needed(required: usize, current: usize) -> u64 {
     let page_size: usize = 65536;
@@ -14,21 +16,27 @@ fn pages_needed(required: usize, current: usize) -> u64 {
 pub struct WasmExecutor {
     engine: Engine,
     fuel: u64,
+    max_memory_bytes: usize,
     module_cache: Mutex<HashMap<String, Module>>,
 }
 
 impl WasmExecutor {
-    pub fn new(fuel: u64) -> anyhow::Result<Self> {
+    pub fn new(fuel: u64, max_memory_bytes: u64) -> anyhow::Result<Self> {
         let mut config = Config::new();
         config.consume_fuel(true);
 
         let engine = Engine::new(&config)?;
+        let max_memory_bytes = usize::try_from(max_memory_bytes)
+            .context("runtime max_memory_bytes exceeds platform address size")?;
+
         Ok(Self {
             engine,
             fuel,
+            max_memory_bytes,
             module_cache: Mutex::new(HashMap::new()),
         })
     }
+
     pub fn execute(&self, wasm_path: &str, input: &[u8]) -> anyhow::Result<Vec<u8>> {
         let module = {
             if let Some(module) = self.module_cache.lock().get(wasm_path) {
@@ -47,7 +55,7 @@ impl WasmExecutor {
         };
 
         let limits = StoreLimitsBuilder::new()
-            .memory_size(MAX_MEMORY_BYTES)
+            .memory_size(self.max_memory_bytes)
             .build();
         let mut store = Store::new(&self.engine, limits);
         store.limiter(|state| state as &mut dyn ResourceLimiter);
@@ -139,4 +147,12 @@ impl WasmExecutor {
 
         Ok(resp)
     }
+}
+
+pub fn is_out_of_fuel(error: &anyhow::Error) -> bool {
+    error.chain().any(|cause| {
+        cause
+            .downcast_ref::<Trap>()
+            .is_some_and(|trap| matches!(trap, Trap::OutOfFuel))
+    })
 }

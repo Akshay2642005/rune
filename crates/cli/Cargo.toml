@@ -18,6 +18,9 @@ serde_json = { workspace = true }
 
 rune-core = { workspace = true }
 
+[dev-dependencies]
+tempfile = { workspace = true }
+
 [[bin]]
 name = "rune"
 path = "src/main.rs"

@@ -7,12 +7,18 @@ and user-provided WebAssembly modules (guest).
 
 ## Required Exports
 
-WASM modules must export the following functions:
+WASM modules must export the following items:
+
+- `memory`: the linear memory the host reads from and writes to
+- `handler(ptr: i32, len: i32) -> i32`: the request entrypoint
+
+Modules may also export:
+
+- `alloc(size: i32) -> i32`: an optional allocator the host will use when present
 
 ### handler
 
 ```rust
-extern "C" fn alloc(size: i32) -> i32
 extern "C" fn handler(ptr: i32, len: i32) -> i32
 ```
 
@@ -41,7 +47,7 @@ The main request handler. The host calls this function with a pointer and length
 {
   "status": 200,
   "headers": [["content-type", "text/plain"]],
-  "body": "aGVsbG8="
+  "body": [104, 101, 108, 108, 111]
 }
 ```
 
@@ -85,8 +91,13 @@ pairs. The `handler` function is invoked with:
 `handler` returns a guest pointer to the response layout:
 
 - First 4 bytes: little-endian `u32` response length
-- Next `len` bytes: JSON-serialized `WasmResponse` where `body` is a base64
-  string and `headers` (if present) is an array of `[name, value]` pairs
+- Next `len` bytes: JSON-serialized `WasmResponse` where `body` is a JSON byte
+  array and `headers` (if present) is an array of `[name, value]` pairs
+
+### Runtime limits in the current alpha
+
+- The host enforces fuel and linear-memory limits.
+- The host does not currently enforce a wall-clock timeout.
 
 ### Error semantics
 

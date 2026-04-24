@@ -1,8 +1,7 @@
-mod deploy;
-
 use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
+use runectl::deploy_function;
 
 #[derive(Debug, Parser)]
 #[command(name = "rune")]
@@ -28,7 +27,7 @@ fn main() -> anyhow::Result<()> {
 
     match cli.command {
         Commands::Deploy { id, route, wasm } => {
-            let deployed = deploy::deploy_function(&id, &route, &wasm)?;
+            let deployed = deploy_function(&id, &route, &wasm)?;
 
             println!(
                 "deployed '{}' to route '{}' using artifact '{}'",

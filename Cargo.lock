@@ -1244,7 +1244,9 @@ dependencies = [
  "rune-core",
  "rune-registry",
  "serde_json",
+ "tempfile",
  "wasmtime",
+ "wat",
 ]
 
 [[package]]
@@ -1258,7 +1260,9 @@ dependencies = [
  "rune-core",
  "rune-registry",
  "rune-runtime",
+ "runectl",
  "serde_json",
+ "tempfile",
  "tokio",
 ]
 
@@ -1270,6 +1274,7 @@ dependencies = [
  "clap",
  "rune-core",
  "serde_json",
+ "tempfile",
 ]
 
 [[package]]
