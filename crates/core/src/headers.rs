@@ -1,7 +1,9 @@
+use serde::Serialize;
+
 pub type HeaderName = String;
 pub type HeaderValue = String;
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct Headers {
     inner: Vec<(HeaderName, HeaderValue)>,
 }
@@ -25,6 +27,17 @@ impl Headers {
     }
     pub fn get(&self, name: &str) -> Option<&str> {
         self.get_all(name).into_iter().next()
+    }
+}
+
+impl From<Vec<(String, String)>> for Headers {
+    fn from(headers: Vec<(String, String)>) -> Self {
+        let mut h = Headers::new();
+
+        for (k, v) in headers {
+            h.insert(k, v);
+        }
+        h
     }
 }
 

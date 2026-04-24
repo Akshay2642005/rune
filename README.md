@@ -15,3 +15,6 @@ It provides secure, resource-limited execution with a contract-first architectur
 ## Status
 
 Early development — architecture-first implementation in progress.
+
+## Breaking Changes
+See [docs/abi.md](docs/abi.md) for WASM interface details.

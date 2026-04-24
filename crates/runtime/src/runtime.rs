@@ -6,9 +6,11 @@ pub struct Runtime {
 }
 
 impl Runtime {
-    pub fn new(store: Arc<dyn rune_core::FunctionStore>) -> Self {
-        let executor = crate::executor::WasmExecutor::new().unwrap();
-        Self { store, executor }
+    pub fn new(store: Arc<dyn rune_core::FunctionStore>) -> Result<Self, rune_core::RuneError> {
+        let executor = crate::WasmExecutor::new(1_000_000)
+            .map_err(|e| rune_core::RuneError::ExecutionError(e.to_string()))?;
+
+        Ok(Self { store, executor })
     }
 
     pub fn handle_request(
@@ -20,9 +22,12 @@ impl Runtime {
             .get_by_route(&req.path)?
             .ok_or(rune_core::RuneError::NotFound)?;
 
+        let input = serde_json::to_vec(&req)
+            .map_err(|e| rune_core::RuneError::ExecutionError(e.to_string()))?;
+
         let resp_bytes = self
             .executor
-            .execute(&func.wasm_path)
+            .execute(&func.wasm_path, &input)
             .map_err(|e| rune_core::RuneError::ExecutionError(e.to_string()))?;
 
         if resp_bytes.is_empty() {
@@ -36,7 +41,7 @@ impl Runtime {
 
         Ok(rune_core::CoreResponse {
             status: wasm_resp.status,
-            headers: Default::default(),
+            headers: wasm_resp.headers.unwrap_or_default().into(),
             body: wasm_resp.body.into_bytes(),
         })
     }
@@ -62,7 +67,7 @@ mod tests {
 
         store.register(func).unwrap();
 
-        let runtime = Runtime::new(Arc::new(store));
+        let runtime = Runtime::new(Arc::new(store)).unwrap();
 
         let req = CoreRequest {
             method: "GET".into(),

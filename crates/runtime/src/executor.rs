@@ -1,46 +1,58 @@
 use wasmtime::{Config, Engine, Instance, Module, Store};
 
+const MAX_RESPONSE_SIZE: usize = 1024 * 1024;
+
+fn pages_needed(required: usize, current: usize) -> u64 {
+    let page_size: usize = 65536;
+    let additional = required.saturating_sub(current);
+    additional.div_ceil(page_size) as u64
+}
+
 pub struct WasmExecutor {
     engine: Engine,
+    fuel: u64,
 }
 
 impl WasmExecutor {
-    pub fn new() -> anyhow::Result<Self> {
+    pub fn new(fuel: u64) -> anyhow::Result<Self> {
         let mut config = Config::new();
         config.consume_fuel(true);
 
         let engine = Engine::new(&config)?;
-        Ok(Self { engine })
+        Ok(Self { engine, fuel })
     }
-    pub fn execute(&self, wasm_path: &str) -> anyhow::Result<Vec<u8>> {
+    pub fn execute(&self, wasm_path: &str, input: &[u8]) -> anyhow::Result<Vec<u8>> {
         let module = Module::from_file(&self.engine, wasm_path)?;
 
         let mut store = Store::new(&self.engine, ());
-        store.set_fuel(10_000)?;
+        store.set_fuel(self.fuel)?;
 
         let instance = Instance::new(&mut store, &module, &[])?;
 
         let memory = instance
             .get_memory(&mut store, "memory")
-            .expect("failed to find memory export");
+            .ok_or_else(|| anyhow::anyhow!("missing memory export"))?;
 
         let handler = instance.get_typed_func::<(i32, i32), i32>(&mut store, "handler")?;
 
-        let input = b"{}";
         let input_ptr = 8usize; // avoid null pointer
 
         let required = input_ptr + input.len();
         let current = memory.data_size(&store);
 
         if required > current {
-            let page_size = 65536;
-            let pages = required.div_ceil(page_size);
-            memory.grow(&mut store, pages as u64)?;
+            let pages = pages_needed(required, current);
+            if pages > 0 {
+                memory.grow(&mut store, pages)?;
+            }
         }
 
         memory.write(&mut store, input_ptr, input)?;
 
         let out_ptr = handler.call(&mut store, (input_ptr as i32, input.len() as i32))?;
+        if out_ptr == 0 {
+            return Err(anyhow::anyhow!("invalid pointer returned from wasm"));
+        }
         let out_ptr = out_ptr as usize;
 
         let mut len_buf = [0u8; 4];
@@ -49,10 +61,10 @@ impl WasmExecutor {
         let current = memory.data_size(&store);
 
         if required > current {
-            let page_size = 65536;
-            let additional = required - current;
-            let pages = additional.div_ceil(page_size);
-            memory.grow(&mut store, pages as u64)?;
+            let pages = pages_needed(required, current);
+            if pages > 0 {
+                memory.grow(&mut store, pages)?;
+            }
         }
 
         memory.read(&mut store, out_ptr, &mut len_buf)?;
@@ -63,12 +75,15 @@ impl WasmExecutor {
         let current = memory.data_size(&store);
 
         if required > current {
-            let page_size = 65536;
-            let additional = required - current;
-            let pages = additional.div_ceil(page_size);
-            memory.grow(&mut store, pages as u64)?;
+            let pages = pages_needed(required, current);
+            if pages > 0 {
+                memory.grow(&mut store, pages)?;
+            }
         }
 
+        if resp_len > MAX_RESPONSE_SIZE {
+            return Err(anyhow::anyhow!("response too large"));
+        }
         let mut resp = vec![0u8; resp_len];
         memory.read(&mut store, out_ptr + 4, &mut resp)?;
 
