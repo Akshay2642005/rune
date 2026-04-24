@@ -14,7 +14,7 @@ It provides secure, resource-limited execution with a contract-first architectur
 
 ## Status
 
-Early development — architecture-first implementation in progress.
+Alpha vertical slice working: deploy with `rune-cli`, then serve with the runtime.
 
 ## WASM ABI
 See [docs/abi.md](docs/abi.md) for the Rune ↔ WASM interface contract that guest modules must implement.
@@ -22,12 +22,43 @@ See [docs/abi.md](docs/abi.md) for the Rune ↔ WASM interface contract that gue
 
 ## Milestone
 
-Core runtime        ██████████  (done)
+Core runtime        ██████████  (95%)
 
-Registry            █████████░
+Registry            █████████░  (85%)
 
-ABI                 ████████░░
+ABI                 ████████░░  (85%)
 
-HTTP                ░░░░░░░░░░
+HTTP                █████████░  (90%)
 
-Tooling             ░░░░░░░░░░
+Tooling             ████░░░░░░  (40%)
+
+## Alpha Flow
+
+Deploy a function with the CLI:
+
+```bash
+cargo run -p rune-cli -- deploy --id hello --route /hello crates/runtime/tests/fixtures/hello.wasm
+```
+
+Start the runtime server:
+
+```bash
+cargo run
+```
+
+Invoke the deployed function:
+
+```bash
+curl http://127.0.0.1:3000/hello
+```
+
+For `v0.1.0-alpha`, the CLI and server communicate through local state in `.rune/`.
+The future client/server architecture can replace this with a network API without
+changing the basic CLI workflow.
+
+## Releases
+
+GitHub releases are driven by `release-plz` from `.github/workflows/release-plz.yml`.
+To let the published release trigger the binary upload workflow, configure a
+`RELEASE_PLZ_TOKEN` repository secret backed by a personal access token with
+permission to create releases and pull requests.

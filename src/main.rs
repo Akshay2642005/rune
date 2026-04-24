@@ -1,30 +1,24 @@
+mod bootstrap;
 mod error;
 mod handler;
 
-use crate::handler::handler;
+use crate::{bootstrap::load_deployments, handler::handler};
 use axum::{routing::any, Router};
 use std::sync::Arc;
 
-use rune_core::{FunctionMeta, FunctionStore};
 use rune_registry::InMemoryFunctionStore;
 use rune_runtime::Runtime;
 
 #[tokio::main]
 async fn main() {
     let store = Arc::new(InMemoryFunctionStore::new());
-
-    let func: FunctionMeta = FunctionMeta {
-        id: "hello".to_string(),
-        route: "/hello".to_string(),
-        wasm_path: "crates/runtime/tests/fixtures/hello.wasm".to_string(),
-    };
+    let loaded = load_deployments(store.as_ref()).expect("Failed to load deployments");
 
     let config = rune_core::RuntimeConfig {
         max_fuel: 1_000_000,
         max_memory_bytes: 64 * 1024 * 1024,
         request_timeout_ms: 5000,
     };
-    store.register(func).expect("Failed to register function");
 
     let runtime = Arc::new(Runtime::new(store.clone(), config).expect("Failed to create runtime"));
 
@@ -36,7 +30,7 @@ async fn main() {
         .await
         .unwrap();
 
-    println!("server running on http://localhost:3000");
+    println!("server running on http://localhost:3000 ({loaded} deployed functions loaded)");
 
     axum::serve(listener, app).await.unwrap();
 }

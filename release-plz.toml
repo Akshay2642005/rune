@@ -1,0 +1,38 @@
+[workspace]
+git_only = true
+publish = false
+release_always = false
+semver_check = false
+changelog_update = false
+git_tag_enable = true
+git_release_enable = false
+pr_labels = ["release"]
+
+[[package]]
+name = "rune"
+version_group = "alpha"
+changelog_update = true
+changelog_path = "./CHANGELOG.md"
+changelog_include = ["rune-cli", "rune-core", "rune-registry", "rune-runtime"]
+git_tag_enable = true
+git_tag_name = "v{{ version }}"
+git_release_enable = true
+git_release_name = "v{{ version }}"
+git_release_type = "pre"
+git_release_latest = false
+
+[[package]]
+name = "rune-cli"
+version_group = "alpha"
+
+[[package]]
+name = "rune-core"
+version_group = "alpha"
+
+[[package]]
+name = "rune-registry"
+version_group = "alpha"
+
+[[package]]
+name = "rune-runtime"
+version_group = "alpha"

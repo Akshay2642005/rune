@@ -1,0 +1,52 @@
+name: release-assets
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: write
+
+jobs:
+  upload-binaries:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: macos-latest
+            target: x86_64-apple-darwin
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Upload server binary
+        uses: taiki-e/upload-rust-binary-action@v1
+        with:
+          bin: rune
+          target: ${{ matrix.target }}
+          manifest-path: ./Cargo.toml
+          archive: rune-${{ matrix.target }}
+          checksum: sha256
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload CLI binary
+        uses: taiki-e/upload-rust-binary-action@v1
+        with:
+          bin: rune-cli
+          target: ${{ matrix.target }}
+          manifest-path: ./crates/cli/Cargo.toml
+          archive: rune-cli-${{ matrix.target }}
+          checksum: sha256
+          token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,10 +1,10 @@
 [package]
 name = "rune"
-version = "0.1.0"
+version = "0.1.0-alpha"
 edition = "2021"
 
 [workspace]
-members = ["crates/core", "crates/registry", "crates/runtime"]
+members = ["crates/core", "crates/registry", "crates/cli", "crates/runtime"]
 exclude = ["examples/hello"]
 resolver = "3"
 
@@ -15,6 +15,7 @@ tokio = { version = "1", features = ["full"] }
 bytes = "1"
 http-body-util = "0.1"
 anyhow = "1"
+serde_json = { workspace = true }
 
 rune-core = { workspace = true }
 rune-registry = { workspace = true }

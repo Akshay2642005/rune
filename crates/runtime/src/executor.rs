@@ -31,13 +31,18 @@ impl WasmExecutor {
     }
     pub fn execute(&self, wasm_path: &str, input: &[u8]) -> anyhow::Result<Vec<u8>> {
         let module = {
-            let mut cache = self.module_cache.lock();
-            if let Some(module) = cache.get(wasm_path) {
+            if let Some(module) = self.module_cache.lock().get(wasm_path) {
                 module.clone()
             } else {
-                let module = Module::from_file(&self.engine, wasm_path)?;
-                cache.insert(wasm_path.to_string(), module.clone());
-                module
+                let compiled = Module::from_file(&self.engine, wasm_path)?;
+
+                let mut cache = self.module_cache.lock();
+
+                let entry = cache
+                    .entry(wasm_path.to_string())
+                    .or_insert_with(|| compiled.clone());
+
+                entry.clone()
             }
         };
 
@@ -56,32 +61,43 @@ impl WasmExecutor {
 
         let handler = instance.get_typed_func::<(i32, i32), i32>(&mut store, "handler")?;
 
-        let input_ptr = if let Ok(alloc_func) = instance.get_typed_func::<i32, i32>(&mut store, "alloc") {
-            let ptr = alloc_func.call(&mut store, input.len() as i32)?;
-            if ptr <= 0 {
-                return Err(anyhow::anyhow!("alloc returned invalid pointer"));
-            }
-            ptr as usize
-        } else {
-            // Fallback to hardcoded reserved region
-            const MAX_INPUT_SIZE: usize = 1024 * 1024; // 1 MiB
-            let input_ptr = 8usize;
-            if input.len() > MAX_INPUT_SIZE {
-                return Err(anyhow::anyhow!("input exceeds maximum size without alloc export"));
-            }
-
-            let required = input_ptr + input.len();
-            let current = memory.data_size(&store);
-
-            if required > current {
-                let pages = pages_needed(required, current);
-                if pages > 0 {
-                    memory.grow(&mut store, pages)?;
+        let input_ptr =
+            if let Ok(alloc_func) = instance.get_typed_func::<i32, i32>(&mut store, "alloc") {
+                let ptr = alloc_func.call(&mut store, input.len() as i32)?;
+                if ptr <= 0 {
+                    return Err(anyhow::anyhow!("alloc returned invalid pointer"));
                 }
-            }
+                ptr as usize
+            } else {
+                // Fallback to hardcoded reserved region
+                const MAX_INPUT_SIZE: usize = 1024 * 1024; // 1 MiB
+                let input_ptr = 8usize;
+                if input.len() > MAX_INPUT_SIZE {
+                    return Err(anyhow::anyhow!(
+                        "input exceeds maximum size without alloc export"
+                    ));
+                }
 
-            input_ptr
-        };
+                let required = input_ptr + input.len();
+                let current = memory.data_size(&store);
+
+                if required > current {
+                    let pages = pages_needed(required, current);
+                    if pages > 0 {
+                        memory.grow(&mut store, pages)?;
+                    }
+                }
+
+                input_ptr
+            };
+        let required = input_ptr + input.len();
+        let current = memory.data_size(&store);
+
+        if required > current {
+            return Err(anyhow::anyhow!(
+                "allocated region out of bounds (guest alloc bug)"
+            ));
+        }
 
         memory.write(&mut store, input_ptr, input)?;
 
@@ -92,7 +108,7 @@ impl WasmExecutor {
                 out_ptr
             ));
         }
-        let out_ptr = (out_ptr as u32) as usize;
+        let out_ptr = out_ptr as usize;
 
         let mut len_buf = [0u8; 4];
         let current = memory.data_size(&store);
@@ -124,3 +140,4 @@ impl WasmExecutor {
         Ok(resp)
     }
 }
+
