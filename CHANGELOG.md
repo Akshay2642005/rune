@@ -7,6 +7,42 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [0.1.1-alpha](https://github.com/Akshay2642005/rune/releases/tag/v0.1.1-alpha) - 2026-04-26
+
+### Added
+
+- *(runtime)* implement wasm execution engine with ABI and response
+
+### Fixed
+
+- apply CodeRabbit auto-fixes
+- *(runtime)* add memory resource limiting to WasmExecutor via StoreLimits
+
+### Other
+
+- (release): release-v0.1.1-alpha
+- Harden 0.1.1-alpha runtime and deploy flow
+- (release): re-release 0.1.0-alpha
+- (release): re-release 0.1.0-alpha
+- Update release-plz.yml
+- Add CLI deploy flow, runtime bootstrap, and CI
+- Add HTTP server with Axum handler
+- Tidy imports, allow dead code, update WASM fixture
+- Support base64-encoded request bodies
+- Update README.md
+- Update crates/runtime/src/executor.rs
+- Update crates/registry/src/lib.rs
+- Add WASM ABI, serialization, and executor improvements
+- add regsitry crate along with InMemoryFunctionStore and unit tests
+- Create dependabot.yml for version updates
+- implement impl std::error::Error for RuneError
+- fixup review issues
+- added minimal function metadata, function storage trait
+- add initial contract layer (request, response, error, config)
+- Update SECURITY.md
+- (bump) add required readmes ..
+- (init): initialize repo with README.md
+
 - Added the `rune` CLI deploy flow that copies wasm artifacts into `.rune`,
   persists deployment metadata, and prepares functions for server startup.
 - Added server bootstrap loading from `.rune/deployments.json` so deployed
