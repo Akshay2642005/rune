@@ -4,16 +4,20 @@ publish = false
 release_always = false
 semver_check = false
 changelog_update = false
-git_tag_enable = true
+# Suppress tags/releases for ALL crates by default.
+# Individual [[package]] blocks below opt-in the binary crates.
+git_tag_enable = false
 git_release_enable = false
-pr_labels = ["release"]
+
+# ── Binary crates (opted in) ─────────────────────────────────────────────────
 
 [[package]]
 name = "rune-server"
 version_group = "alpha"
 changelog_update = true
 changelog_path = "./CHANGELOG.md"
-changelog_include = ["runectl", "rune-host-core", "rune-host-registry", "rune-host-runtime"]
+# Pull changes from all workspace members into the server changelog.
+changelog_include = ["runectl", "rune-core", "rune-registry", "rune-runtime"]
 git_tag_enable = true
 git_tag_name = "v{{ version }}"
 git_release_enable = true
@@ -24,4 +28,29 @@ git_release_latest = false
 [[package]]
 name = "runectl"
 version_group = "alpha"
+# runectl shares the version group with rune-server so they bump together,
+# but it doesn't get its own changelog or release — rune-server's release
+# uploads both binaries.
+git_tag_enable = false
+git_release_enable = false
+
+# ── Internal library crates (explicitly suppressed) ──────────────────────────
+
+[[package]]
+name = "rune-core"
+git_tag_enable = false
+git_release_enable = false
+changelog_update = false
+
+[[package]]
+name = "rune-registry"
+git_tag_enable = false
+git_release_enable = false
+changelog_update = false
+
+[[package]]
+name = "rune-runtime"
+git_tag_enable = false
+git_release_enable = false
+changelog_update = false
 
