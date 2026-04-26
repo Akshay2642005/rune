@@ -1,6 +1,6 @@
 [package]
 name = "rune-core"
-version = "0.1.0-alpha"
+version = "0.1.1-alpha"
 edition = "2024"
 license = "MIT"
 description = "Shared core types for the Rune platform."
