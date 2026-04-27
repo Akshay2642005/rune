@@ -13,7 +13,7 @@ pub extern "C" fn alloc(size: i32) -> i32 {
 pub extern "C" fn handler(ptr: i32, len: i32) -> i32 {
     let _input = unsafe { std::slice::from_raw_parts(ptr as *const u8, len as usize) };
 
-    let response = b"{\"status\":200,\"body\":[104,101,108,108,111]}";
+    let response = b"{\"status\":200,\"body\":\"Hello, World!\"}";
 
     let total_len = 4 + response.len();
     let out_ptr = alloc(total_len as i32);

@@ -46,6 +46,7 @@ mod tests {
         let mut manifest = DeploymentManifest {
             functions: vec![FunctionMeta {
                 id: "hello".into(),
+                subdomain: None,
                 route: "/hello".into(),
                 wasm_path: ".rune/functions/hello.wasm".into(),
             }],
@@ -54,6 +55,7 @@ mod tests {
         manifest
             .upsert(FunctionMeta {
                 id: "hello".into(),
+                subdomain: None,
                 route: "/v2/hello".into(),
                 wasm_path: ".rune/functions/hello-v2.wasm".into(),
             })
@@ -72,6 +74,7 @@ mod tests {
         let mut manifest = DeploymentManifest {
             functions: vec![FunctionMeta {
                 id: "hello".into(),
+                subdomain: None,
                 route: "/hello".into(),
                 wasm_path: ".rune/functions/hello.wasm".into(),
             }],
@@ -80,6 +83,7 @@ mod tests {
         let err = manifest
             .upsert(FunctionMeta {
                 id: "hello-2".into(),
+                subdomain: None,
                 route: "/hello".into(),
                 wasm_path: ".rune/functions/hello-2.wasm".into(),
             })

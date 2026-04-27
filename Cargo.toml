@@ -18,7 +18,7 @@ resolver = "3"
 
 
 [dependencies]
-axum = "0.8"
+axum = { version = "0.8", features = ["multipart"] }
 tokio = { workspace = true }
 bytes = "1"
 http-body-util = "0.1"
@@ -29,10 +29,11 @@ tower = "0.5"
 tower-http = { version = "0.6", features = ["cors", "trace"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+sqlx = { workspace = true }
 
 rune-core = { workspace = true }
-rune-registry = { workspace = true } 
-rune-runtime = { workspace = true } 
+rune-registry = { workspace = true }
+rune-runtime = { workspace = true }
 
 
 
@@ -55,6 +56,7 @@ tokio = { version = "1", features = ["full"] }
 reqwest = { version = "0.12" , features = ["multipart", "json"] }
 toml = "0.8"
 dirs = "5"
+clap       = { version = "4.5", features = ["derive"] }
 
 rune-core = { version = "0.1.1-alpha", path = "crates/core" }
 rune-registry = { version = "0.1.1-alpha", path = "crates/registry" }
@@ -63,5 +65,4 @@ runectl = { version = "0.1.1-alpha", path = "crates/cli" }
 
 
 [dev-dependencies]
-runectl = { workspace = true }
 tempfile = { workspace = true }

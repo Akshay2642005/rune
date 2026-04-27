@@ -124,6 +124,8 @@ mod tests {
         let store = InMemoryFunctionStore::new();
         store
             .register(FunctionMeta {
+                subdomain: None,
+
                 id: "fixture".into(),
                 route: TEST_ROUTE.into(),
                 wasm_path: wasm_path.to_string_lossy().into_owned(),
@@ -175,6 +177,7 @@ mod tests {
         let store = InMemoryFunctionStore::new();
         let wasm_path = format!("{}/tests/fixtures/hello.wasm", env!("CARGO_MANIFEST_DIR"));
         let func = FunctionMeta {
+            subdomain: None,
             id: "hello".into(),
             route: "/hello".into(),
             wasm_path,
