@@ -21,10 +21,6 @@ pub extern "C" fn handler(ptr: i32, len: i32) -> i32 {
         return 0;
     }
 
-    if out_ptr == 0 {
-        return 0;
-    }
-
     unsafe {
         let len_bytes = (response.len() as u32).to_le_bytes();
 

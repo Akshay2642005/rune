@@ -11,4 +11,13 @@ keywords = ["wasm", "registry", "runtime"]
 categories = ["wasm"]
 
 [dependencies]
-rune-core = { workspace = true }
+rune-core  = { workspace = true }
+sqlx       = { workspace = true }
+tokio      = { workspace = true }
+anyhow     = { workspace = true }
+sha2       = { workspace = true }
+hex        = { workspace = true }
+uuid       = { workspace = true }
+rand       = { workspace = true }
+serde      = { workspace = true }
+serde_json = { workspace = true }

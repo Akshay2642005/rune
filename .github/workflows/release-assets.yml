@@ -2,14 +2,14 @@ name: release-assets
 
 on:
   release:
-    types:
-      - published
+    types: [published]
 
 permissions:
   contents: write
 
 jobs:
   upload-binaries:
+    name: ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -17,13 +17,19 @@ jobs:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            # cross-compile ARM via cross
+            use_cross: true
           - os: macos-latest
             target: x86_64-apple-darwin
+          - os: macos-latest
+            target: aarch64-apple-darwin
           - os: windows-latest
             target: x86_64-pc-windows-msvc
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install Rust toolchain
@@ -31,22 +37,25 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
-      - name: Upload server binary
+      # Upload rune-server binary
+      - name: Upload rune-server
         uses: taiki-e/upload-rust-binary-action@v1
         with:
           bin: rune-server
           target: ${{ matrix.target }}
+          # Root Cargo.toml is the rune-server package
           manifest-path: ./Cargo.toml
           archive: rune-server-${{ matrix.target }}
           checksum: sha256
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELEASE_PLZ_TOKEN }}
 
-      - name: Upload CLI binary
+      # Upload runectl binary
+      - name: Upload runectl (rune CLI)
         uses: taiki-e/upload-rust-binary-action@v1
         with:
           bin: rune
           target: ${{ matrix.target }}
           manifest-path: ./crates/cli/Cargo.toml
-          archive: rune-${{ matrix.target }}
+          archive: runectl-${{ matrix.target }}
           checksum: sha256
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELEASE_PLZ_TOKEN }}

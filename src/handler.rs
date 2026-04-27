@@ -6,22 +6,27 @@ use axum::{
     http::header::{HeaderName, HeaderValue},
     response::Response,
 };
-
 use bytes::Bytes;
 use http_body_util::BodyExt;
 
-use rune_core::{CoreRequest, Headers, RuneError};
+use rune_core::{CoreRequest, FunctionStore, Headers, RuneError};
 use rune_runtime::Runtime;
 
 use crate::error::map_error;
 
-pub async fn handler(State(runtime): State<Arc<Runtime>>, req: Request) -> Response {
-    match handle_inner(runtime, req).await {
+/// Shared state for the function-traffic router.
+#[derive(Clone)]
+pub struct RuntimeState {
+    pub runtime: Arc<Runtime>,
+    pub store: Arc<dyn FunctionStore>,
+    pub base_domain: Option<String>, // e.g. Some("yourdomain.com")
+}
+
+pub async fn handler(State(state): State<RuntimeState>, req: Request) -> Response {
+    match handle_inner(state, req).await {
         Ok(resp) => resp,
         Err(err) => {
-            // minimal error mapping for now
             let (status, msg) = map_error(err);
-
             Response::builder()
                 .status(status)
                 .body(Body::from(msg))
@@ -30,29 +35,44 @@ pub async fn handler(State(runtime): State<Arc<Runtime>>, req: Request) -> Respo
     }
 }
 
-async fn handle_inner(runtime: Arc<Runtime>, req: Request) -> Result<Response, RuneError> {
+async fn handle_inner(state: RuntimeState, req: Request) -> Result<Response, RuneError> {
     let (parts, body) = req.into_parts();
 
-    // -------- method + path --------
     let method = parts.method.to_string();
     let path = parts.uri.path().to_string();
 
-    // -------- headers (preserve duplicates + case-insensitive) --------
+    // ── Headers ───────────────────────────────────────────────────────────────
     let mut headers = Headers::new();
-
     for (name, value) in parts.headers.iter() {
-        let name = name.as_str().to_string();
-
-        // avoid panic on invalid utf8
-        let value = match value.to_str() {
-            Ok(v) => v.to_string(),
-            Err(_) => continue, // skip invalid header values
-        };
-
-        headers.insert(name, value);
+        if let Ok(v) = value.to_str() {
+            headers.insert(name.as_str().to_string(), v.to_string());
+        }
     }
 
-    // -------- body (raw bytes) --------
+    // ── Subdomain routing ─────────────────────────────────────────────────────
+    // If the Host header contains a subdomain of base_domain, look up by
+    // subdomain first.  Fall back to path-based routing.
+    let func = if let Some(base) = &state.base_domain {
+        let host = headers.get("host").unwrap_or("");
+        if let Some(sub) = extract_subdomain(host, base) {
+            state.store.get_by_subdomain(sub)?
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
+    // Fall back to path routing.
+    let func = match func {
+        Some(f) => f,
+        None => state
+            .store
+            .get_by_route(&path)?
+            .ok_or(RuneError::NotFound)?,
+    };
+
+    // ── Body ──────────────────────────────────────────────────────────────────
     let body_bytes: Bytes = body
         .collect()
         .await
@@ -63,30 +83,60 @@ async fn handle_inner(runtime: Arc<Runtime>, req: Request) -> Result<Response, R
         method,
         path,
         headers,
-        body: body_bytes.to_vec(), // ByteBuf
+        body: body_bytes.to_vec(),
     };
 
-    // -------- runtime --------
-    let core_resp = runtime.handle_request(core_req)?;
+    // ── Dispatch ──────────────────────────────────────────────────────────────
+    let runtime = state.runtime.clone();
+    let core_resp =
+        tokio::task::spawn_blocking(move || runtime.handle_request_with_function(core_req, func))
+            .await
+            .map_err(|e| RuneError::InternalError(e.to_string()))??;
 
-    // -------- build HTTP response --------
+    // ── Build HTTP response ───────────────────────────────────────────────────
     let mut builder = Response::builder().status(core_resp.status);
-
     let headers_map = builder.headers_mut().unwrap();
-
     for (k, v) in core_resp.headers.iter() {
-        let name = match HeaderName::from_bytes(k.as_bytes()) {
-            Ok(name) => name,
-            Err(_) => continue,
-        };
-        let value = match HeaderValue::from_str(v) {
-            Ok(value) => value,
-            Err(_) => continue,
-        };
-        headers_map.append(name, value);
+        if let (Ok(name), Ok(val)) = (
+            HeaderName::from_bytes(k.as_bytes()),
+            HeaderValue::from_str(v),
+        ) {
+            headers_map.append(name, val);
+        }
     }
 
-    let response = builder.body(Body::from(core_resp.body)).unwrap();
+    Ok(builder.body(Body::from(core_resp.body)).unwrap())
+}
 
-    Ok(response)
+/// Extract the subdomain label from a Host header value.
+///
+/// `extract_subdomain("hello.yourdomain.com", "yourdomain.com")` → `Some("hello")`
+fn extract_subdomain<'a>(host: &'a str, base_domain: &str) -> Option<&'a str> {
+    // Strip optional port.
+    let host = host.split(':').next()?;
+    // Host names are case-insensitive (RFC 3986 §3.2.2).
+    // Use a case-insensitive match while preserving the original slice for the return.
+    let suffix = format!(".{}", base_domain.to_ascii_lowercase());
+    let host_lower = host.to_ascii_lowercase();
+    let stripped_len = host_lower.strip_suffix(suffix.as_str())?.len();
+    Some(&host[..stripped_len])
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn subdomain_extraction() {
+        assert_eq!(
+            extract_subdomain("hello.yourdomain.com", "yourdomain.com"),
+            Some("hello")
+        );
+        assert_eq!(extract_subdomain("yourdomain.com", "yourdomain.com"), None);
+        assert_eq!(
+            extract_subdomain("hello.yourdomain.com:443", "yourdomain.com"),
+            Some("hello")
+        );
+        assert_eq!(extract_subdomain("other.com", "yourdomain.com"), None);
+    }
 }
