@@ -121,10 +121,21 @@ async fn deploy(
     }
 
     // Write WASM artifact to disk.
+    if id.contains("..") || id.contains('/') || id.contains('\\') {
+        return Err((StatusCode::BAD_REQUEST, "invalid function id".to_string()));
+    }
+
     fs::create_dir_all(&state.wasm_dir)
         .map_err(|e| internal(format!("failed to create wasm dir: {e}")))?;
 
-    let wasm_path = Path::new(&state.wasm_dir).join(format!("{id}.wasm"));
+    let wasm_base = Path::new(&state.wasm_dir)
+        .canonicalize()
+        .map_err(|e| internal(format!("failed to canonicalize wasm dir: {e}")))?;
+    let wasm_path = wasm_base.join(format!("{id}.wasm"));
+    if !wasm_path.starts_with(&wasm_base) {
+        return Err((StatusCode::BAD_REQUEST, "invalid wasm path".to_string()));
+    }
+
     fs::write(&wasm_path, &bytes).map_err(|e| internal(format!("failed to write wasm: {e}")))?;
 
     let meta = FunctionMeta {
