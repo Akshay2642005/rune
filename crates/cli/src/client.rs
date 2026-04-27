@@ -14,16 +14,23 @@ pub struct RuneClient {
 }
 
 impl RuneClient {
-    pub fn new(server_url: impl Into<String>, api_key: impl Into<String>) -> Self {
-        Self {
+    pub fn new(server_url: impl Into<String>, api_key: impl Into<String>) -> anyhow::Result<Self> {
+        let server_url = server_url.into();
+        let parsed = reqwest::Url::parse(&server_url)
+            .with_context(|| format!("invalid server URL: '{server_url}'"))?;
+        if parsed.scheme() != "https" {
+            anyhow::bail!("insecure server URL scheme '{}': HTTPS is required", parsed.scheme());
+        }
+
+        Ok(Self {
             client: Client::builder()
                 .timeout(Duration::from_secs(30))
                 .connect_timeout(Duration::from_secs(5))
                 .build()
                 .expect("failed to build HTTP client"),
-            server_url: server_url.into().trim_end_matches('/').to_string(),
+            server_url: server_url.trim_end_matches('/').to_string(),
             api_key: api_key.into(),
-        }
+        })
     }
 
     fn url(&self, path: &str) -> String {

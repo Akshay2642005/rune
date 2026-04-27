@@ -186,8 +186,5 @@ async fn main() -> anyhow::Result<()> {
 }
 
 fn rune_client(cfg: &RuneConfig) -> anyhow::Result<RuneClient> {
-    Ok(RuneClient::new(
-        cfg.require_server_url()?,
-        cfg.require_api_key()?,
-    ))
+    RuneClient::new(cfg.require_server_url()?, cfg.require_api_key()?)
 }
