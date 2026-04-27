@@ -1,6 +1,6 @@
 [package]
 name = "rune-registry"
-version = "0.1.1-alpha"
+version = "0.2.0"
 edition = "2024"
 license = "MIT"
 description = "Function registry components for the Rune platform."

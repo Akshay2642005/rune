@@ -19,7 +19,10 @@ impl RuneClient {
         let parsed = reqwest::Url::parse(&server_url)
             .with_context(|| format!("invalid server URL: '{server_url}'"))?;
         if parsed.scheme() != "https" {
-            anyhow::bail!("insecure server URL scheme '{}': HTTPS is required", parsed.scheme());
+            anyhow::bail!(
+                "insecure server URL scheme '{}': HTTPS is required",
+                parsed.scheme()
+            );
         }
 
         Ok(Self {
@@ -151,7 +154,6 @@ pub struct FunctionRecord {
 #[derive(Debug, Deserialize)]
 pub struct CreatedKey {
     pub id: String,
-    pub name: String,
     pub key: String,
 }
 
