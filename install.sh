@@ -2,7 +2,7 @@
 # install.sh — Rune installer
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/Akshay2642005/rune/master/install.sh | sh
-#   curl -fsSL ... | sh -s -- --version v0.1.1-alpha
+#   curl -fsSL ... | sh -s -- --version v0.2.0
 #   curl -fsSL ... | sh -s -- --bin runectl   # only CLI
 #   curl -fsSL ... | sh -s -- --bin server    # only server
 #   curl -fsSL ... | sh -s -- runectl         # positional (same as --bin runectl)

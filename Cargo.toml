@@ -1,6 +1,6 @@
 [package]
 name = "rune-server"
-version = "0.1.1-alpha"
+version = "0.2.0"
 edition = "2021"
 license = "MIT"
 description = "Sandboxed WASM function runtime server for the Rune platform."
@@ -59,10 +59,10 @@ toml = "0.8"
 dirs = "5"
 clap       = { version = "4.5", features = ["derive"] }
 
-rune-core = { version = "0.1.1-alpha", path = "crates/core" }
-rune-registry = { version = "0.1.1-alpha", path = "crates/registry" }
-rune-runtime = { version = "0.1.1-alpha", path = "crates/runtime" }
-runectl = { version = "0.1.1-alpha", path = "crates/cli" }
+rune-core = { version = "0.2.0", path = "crates/core" }
+rune-registry = { version = "0.2.0", path = "crates/registry" }
+rune-runtime = { version = "0.2.0", path = "crates/runtime" }
+runectl = { version = "0.2.0", path = "crates/cli" }
 
 
 [dev-dependencies]
