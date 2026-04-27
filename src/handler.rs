@@ -114,8 +114,12 @@ async fn handle_inner(state: RuntimeState, req: Request) -> Result<Response, Run
 fn extract_subdomain<'a>(host: &'a str, base_domain: &str) -> Option<&'a str> {
     // Strip optional port.
     let host = host.split(':').next()?;
-    let suffix = format!(".{base_domain}");
-    host.strip_suffix(suffix.as_str())
+    // Host names are case-insensitive (RFC 3986 §3.2.2).
+    // Use a case-insensitive match while preserving the original slice for the return.
+    let suffix = format!(".{}", base_domain.to_ascii_lowercase());
+    let host_lower = host.to_ascii_lowercase();
+    let stripped_len = host_lower.strip_suffix(suffix.as_str())?.len();
+    Some(&host[..stripped_len])
 }
 
 #[cfg(test)]
