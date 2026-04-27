@@ -1,4 +1,7 @@
-use std::{fs, path::Path};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use axum::{
     extract::{Multipart, Path as AxumPath, State},
@@ -38,6 +41,48 @@ impl From<FunctionMeta> for FunctionResponse {
             wasm_path: m.wasm_path,
         }
     }
+}
+
+fn validate_function_id_for_filename(id: &str) -> Result<(), (StatusCode, String)> {
+    if id.is_empty()
+        || id == "."
+        || id == ".."
+        || id.contains('/')
+        || id.contains('\\')
+        || id.contains("..")
+    {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            "invalid function id for wasm filename".to_string(),
+        ));
+    }
+
+    Ok(())
+}
+
+fn safe_wasm_target_dir(dir: &str) -> Result<PathBuf, (StatusCode, String)> {
+    let p = Path::new(dir);
+    if !p.is_absolute() {
+        return Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "invalid wasm_dir: must be an absolute path".to_string(),
+        ));
+    }
+
+    let mut normalized = PathBuf::new();
+    for c in p.components() {
+        match c {
+            std::path::Component::ParentDir => {
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "invalid wasm_dir: parent directory traversal is not allowed".to_string(),
+                ))
+            }
+            _ => normalized.push(c.as_os_str()),
+        }
+    }
+
+    Ok(normalized)
 }
 
 // ── POST /api/functions ───────────────────────────────────────────────────────
@@ -121,10 +166,12 @@ async fn deploy(
     }
 
     // Write WASM artifact to disk.
-    if id.contains("..") || id.contains('/') || id.contains('\\') {
+    validate_function_id_for_filename(&id)?;
+    let wasm_dir = safe_wasm_target_dir(&state.wasm_dir)?;
+    fs::create_dir_all(&wasm_dir)
         return Err((StatusCode::BAD_REQUEST, "invalid function id".to_string()));
     }
-
+    let wasm_path = wasm_dir.join(format!("{id}.wasm"));
     fs::create_dir_all(&state.wasm_dir)
         .map_err(|e| internal(format!("failed to create wasm dir: {e}")))?;
 
