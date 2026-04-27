@@ -19,7 +19,9 @@ pub struct ApiState {
 /// Build the control-plane router.
 ///
 /// All routes under `/api/` require a valid `Authorization: Bearer rune_sk_…`
-/// header, enforced by the `auth::require_api_key` middleware.
+/// header, enforced by the `auth::require_api_key` middleware. The POST
+/// `/api/keys` endpoint is allowed through without auth only when there are no
+/// active API keys (bootstrap scenario).
 pub fn router(state: ApiState) -> Router {
     let protected = Router::new()
         .merge(functions::router())

@@ -9,6 +9,8 @@ pub fn map_error(err: RuneError) -> (StatusCode, String) {
         RuneError::InvalidRequest(e) => (StatusCode::BAD_REQUEST, e),
         RuneError::Timeout => (StatusCode::GATEWAY_TIMEOUT, "request timed out".into()),
         RuneError::OutOfFuel => (StatusCode::TOO_MANY_REQUESTS, "out of fuel".into()),
-        RuneError::DuplicateRoute { route } => (StatusCode::CONFLICT, route),
+        RuneError::DuplicateIdentifier { field, value } => {
+            (StatusCode::CONFLICT, format!("{field}:{value}"))
+        }
     }
 }

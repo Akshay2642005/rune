@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{path::Path, time::Duration};
 
 use anyhow::Context;
 use reqwest::{
@@ -16,7 +16,11 @@ pub struct RuneClient {
 impl RuneClient {
     pub fn new(server_url: impl Into<String>, api_key: impl Into<String>) -> Self {
         Self {
-            client: Client::new(),
+            client: Client::builder()
+                .timeout(Duration::from_secs(30))
+                .connect_timeout(Duration::from_secs(5))
+                .build()
+                .expect("failed to build HTTP client"),
             server_url: server_url.into().trim_end_matches('/').to_string(),
             api_key: api_key.into(),
         }
@@ -87,7 +91,7 @@ impl RuneClient {
 
     pub async fn create_key(&self, name: &str) -> anyhow::Result<CreatedKey> {
         let resp = self
-            .auth(self.client.post(self.url("/keys")))
+            .auth(self.client.post(self.url("keys")))
             .json(&serde_json::json!({ "name": name }))
             .send()
             .await?;
@@ -95,13 +99,13 @@ impl RuneClient {
     }
 
     pub async fn list_keys(&self) -> anyhow::Result<Vec<KeyRecord>> {
-        let resp = self.auth(self.client.get(self.url("/keys"))).send().await?;
+        let resp = self.auth(self.client.get(self.url("keys"))).send().await?;
         parse_response(resp).await
     }
 
     pub async fn revoke_key(&self, id: &str) -> anyhow::Result<()> {
         let resp = self
-            .auth(self.client.delete(self.url(&format!("/keys/{id}"))))
+            .auth(self.client.delete(self.url(&format!("keys/{id}"))))
             .send()
             .await?;
         if resp.status() == StatusCode::NO_CONTENT {

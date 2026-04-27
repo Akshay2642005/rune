@@ -74,12 +74,51 @@ async fn deploy(
     if id.trim().is_empty() {
         return Err(bad_request("id cannot be empty"));
     }
+    if id.contains('/') || id.contains('\\') || id.contains("..") {
+        return Err(bad_request("id must not contain path separators or '..'"));
+    }
+    if !id
+        .chars()
+        .all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_')
+    {
+        return Err(bad_request(
+            "id must contain only ASCII letters, numbers, '-' or '_'",
+        ));
+    }
     if !route.starts_with('/') {
         return Err(bad_request("route must start with '/'"));
     }
 
     // Strip empty subdomain string → None
     let subdomain = subdomain.filter(|s| !s.trim().is_empty());
+
+    // Preflight route/subdomain conflicts before mutating disk or DB.
+    if let Some(existing) = state
+        .store
+        .get_by_route(&route)
+        .map_err(|e| internal(e.to_string()))?
+    {
+        if existing.id != id {
+            return Err((
+                StatusCode::CONFLICT,
+                format!("route already registered: {route}"),
+            ));
+        }
+    }
+    if let Some(sub) = &subdomain {
+        if let Some(existing) = state
+            .store
+            .get_by_subdomain(sub)
+            .map_err(|e| internal(e.to_string()))?
+        {
+            if existing.id != id {
+                return Err((
+                    StatusCode::CONFLICT,
+                    format!("subdomain already registered: {sub}"),
+                ));
+            }
+        }
+    }
 
     // Write WASM artifact to disk.
     fs::create_dir_all(&state.wasm_dir)
@@ -102,12 +141,14 @@ async fn deploy(
 
     // Update the hot in-memory cache.
     state.store.register(meta.clone()).map_err(|e| {
-        // If in-memory rejects (e.g. duplicate route from different id), roll back DB.
+        // If in-memory rejects (e.g. duplicate route from different id), roll back DB + artifact.
         let _ = tokio::spawn({
             let pool = state.pool.clone();
             let id = id.clone();
+            let wasm_path = wasm_path.clone();
             async move {
                 let _ = rune_registry::delete_function(&pool, &id).await;
+                let _ = std::fs::remove_file(&wasm_path);
             }
         });
         (StatusCode::CONFLICT, e.to_string())

@@ -5,7 +5,7 @@ pub enum RuneError {
     Timeout,
     OutOfFuel,
     InvalidRequest(String),
-    DuplicateRoute { route: String },
+    DuplicateIdentifier { field: String, value: String },
     InternalError(String),
 }
 
@@ -17,7 +17,9 @@ impl std::fmt::Display for RuneError {
             Self::Timeout => f.write_str("request timed out"),
             Self::OutOfFuel => f.write_str("out of fuel"),
             Self::InvalidRequest(msg) => f.write_str(&format!("invalid request: {}", msg)),
-            Self::DuplicateRoute { route } => f.write_str(&format!("duplicate route: {}", route)),
+            Self::DuplicateIdentifier { field, value } => {
+                f.write_str(&format!("duplicate {field}: {value}"))
+            }
             Self::InternalError(msg) => f.write_str(&format!("internal error: {}", msg)),
         }
     }

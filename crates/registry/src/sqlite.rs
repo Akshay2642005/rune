@@ -18,6 +18,8 @@ pub async fn open(db_path: &str) -> anyhow::Result<SqlitePool> {
 
     let pool = SqlitePoolOptions::new()
         .max_connections(8)
+        .min_connections(1)
+        .max_lifetime(None)
         .connect(&url)
         .await
         .with_context(|| format!("failed to open SQLite database at '{db_path}'"))?;
@@ -141,7 +143,7 @@ pub async fn create_api_key(pool: &SqlitePool, name: &str) -> anyhow::Result<New
 /// Verify a raw key. Returns the key's `id` if valid.
 pub async fn verify_api_key(pool: &SqlitePool, raw: &str) -> anyhow::Result<Option<String>> {
     let hash = hash_key(raw);
-    let row = sqlx::query("SELECT id FROM api_keys WHERE key_hash = ?1")
+    let row = sqlx::query("SELECT id FROM api_keys WHERE key_hash = ?1 AND revoked_at IS NULL")
         .bind(&hash)
         .fetch_optional(pool)
         .await
@@ -151,10 +153,12 @@ pub async fn verify_api_key(pool: &SqlitePool, raw: &str) -> anyhow::Result<Opti
 
 /// List all keys (ids + names, never hashes).
 pub async fn list_api_keys(pool: &SqlitePool) -> anyhow::Result<Vec<ApiKeyRecord>> {
-    let rows = sqlx::query("SELECT id, name, created_at FROM api_keys ORDER BY created_at")
-        .fetch_all(pool)
-        .await
-        .context("failed to list api keys")?;
+    let rows = sqlx::query(
+        "SELECT id, name, created_at FROM api_keys WHERE revoked_at IS NULL ORDER BY created_at",
+    )
+    .fetch_all(pool)
+    .await
+    .context("failed to list api keys")?;
 
     Ok(rows
         .into_iter()
@@ -168,11 +172,13 @@ pub async fn list_api_keys(pool: &SqlitePool) -> anyhow::Result<Vec<ApiKeyRecord
 
 /// Revoke an API key by id. Returns `true` if it existed.
 pub async fn revoke_api_key(pool: &SqlitePool, id: &str) -> anyhow::Result<bool> {
-    let result = sqlx::query("DELETE FROM api_keys WHERE id = ?1")
-        .bind(id)
-        .execute(pool)
-        .await
-        .context("failed to revoke api key")?;
+    let result = sqlx::query(
+        "UPDATE api_keys SET revoked_at = unixepoch() WHERE id = ?1 AND revoked_at IS NULL",
+    )
+    .bind(id)
+    .execute(pool)
+    .await
+    .context("failed to revoke api key")?;
     Ok(result.rows_affected() > 0)
 }
 
@@ -198,7 +204,9 @@ mod tests {
     use super::*;
 
     async fn test_pool() -> SqlitePool {
-        open(":memory:").await.unwrap()
+        let pool = open(":memory:").await.unwrap();
+        run_migrations(&pool).await.unwrap();
+        pool
     }
 
     #[tokio::test]

@@ -75,8 +75,9 @@ impl FunctionStore for InMemoryFunctionStore {
         // Check route collision (different function owns this route).
         if let Some(owner_id) = g.route_index.get(&meta.route) {
             if owner_id != &meta.id {
-                return Err(RuneError::DuplicateRoute {
-                    route: meta.route.clone(),
+                return Err(RuneError::DuplicateIdentifier {
+                    field: "route".to_string(),
+                    value: meta.route.clone(),
                 });
             }
         }
@@ -85,8 +86,9 @@ impl FunctionStore for InMemoryFunctionStore {
         if let Some(sub) = &meta.subdomain {
             if let Some(owner_id) = g.subdomain_index.get(sub) {
                 if owner_id != &meta.id {
-                    return Err(RuneError::DuplicateRoute {
-                        route: format!("subdomain:{sub}"),
+                    return Err(RuneError::DuplicateIdentifier {
+                        field: "subdomain".to_string(),
+                        value: sub.clone(),
                     });
                 }
             }
@@ -173,7 +175,7 @@ mod tests {
         let s = InMemoryFunctionStore::new();
         s.register(meta("a", "/hello", None)).unwrap();
         let err = s.register(meta("b", "/hello", None)).unwrap_err();
-        assert!(matches!(err, RuneError::DuplicateRoute { .. }));
+        assert!(matches!(err, RuneError::DuplicateIdentifier { .. }));
     }
 
     #[test]

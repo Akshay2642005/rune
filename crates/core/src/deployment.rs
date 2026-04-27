@@ -13,14 +13,23 @@ pub struct DeploymentManifest {
 
 impl DeploymentManifest {
     pub fn upsert(&mut self, meta: FunctionMeta) -> Result<(), RuneError> {
-        if self
-            .functions
-            .iter()
-            .any(|existing| existing.route == meta.route && existing.id != meta.id)
-        {
-            return Err(RuneError::DuplicateRoute {
-                route: meta.route.clone(),
-            });
+        if let Some(existing) = self.functions.iter().find(|existing| {
+            existing.id != meta.id
+                && (existing.route == meta.route
+                    || (meta.subdomain.is_some() && existing.subdomain == meta.subdomain))
+        }) {
+            if existing.route == meta.route {
+                return Err(RuneError::DuplicateIdentifier {
+                    field: "route".to_string(),
+                    value: meta.route.clone(),
+                });
+            }
+            if let Some(subdomain) = meta.subdomain.as_ref() {
+                return Err(RuneError::DuplicateIdentifier {
+                    field: "subdomain".to_string(),
+                    value: subdomain.clone(),
+                });
+            }
         }
 
         if let Some(existing) = self
@@ -90,8 +99,11 @@ mod tests {
             .unwrap_err();
 
         match err {
-            RuneError::DuplicateRoute { route } => assert_eq!(route, "/hello"),
-            other => panic!("expected duplicate route error, got {other}"),
+            RuneError::DuplicateIdentifier { field, value } => {
+                assert_eq!(field, "route");
+                assert_eq!(value, "/hello");
+            }
+            other => panic!("expected duplicate identifier error, got {other}"),
         }
     }
 }

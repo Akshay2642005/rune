@@ -25,6 +25,14 @@ impl Runtime {
             .get_by_route(&req.path)?
             .ok_or(rune_core::RuneError::NotFound)?;
 
+        self.handle_request_with_function(req, func)
+    }
+
+    pub fn handle_request_with_function(
+        &self,
+        req: rune_core::CoreRequest,
+        func: rune_core::FunctionMeta,
+    ) -> Result<rune_core::CoreResponse, rune_core::RuneError> {
         let input = serde_json::to_vec(&req).map_err(|e| {
             execution_error(
                 &func.id,

@@ -3,7 +3,7 @@ mod bootstrap;
 mod error;
 mod handler;
 
-use std::{env, sync::Arc};
+use std::{env, path::Path, sync::Arc};
 
 use axum::{routing::any, Router};
 use rune_registry::InMemoryFunctionStore;
@@ -34,7 +34,11 @@ async fn main() -> anyhow::Result<()> {
     let base_domain = env::var("RUNE_DOMAIN").ok(); // e.g. "yourdomain.com"
 
     // ── Database ──────────────────────────────────────────────────────────────
-    std::fs::create_dir_all(".rune")?;
+    if let Some(parent) = Path::new(&db_path).parent() {
+        if !parent.as_os_str().is_empty() {
+            std::fs::create_dir_all(parent)?;
+        }
+    }
     let pool = rune_registry::open(&db_path).await?;
     rune_registry::run_migrations(&pool).await?;
 
@@ -42,11 +46,13 @@ async fn main() -> anyhow::Result<()> {
     let keys = rune_registry::list_api_keys(&pool).await?;
     if keys.is_empty() {
         let new_key = rune_registry::create_api_key(&pool, "default").await?;
-        tracing::warn!("═══════════════════════════════════════════════════════");
-        tracing::warn!("  First run — API key generated (shown once, save it):");
-        tracing::warn!("  {}", new_key.raw);
-        tracing::warn!("  Run:  rune auth save --key {}", new_key.raw);
-        tracing::warn!("═══════════════════════════════════════════════════════");
+        if atty::is(atty::Stream::Stderr) {
+            eprintln!("═══════════════════════════════════════════════════════");
+            eprintln!("  First run — API key generated (shown once, save it):");
+            eprintln!("  {}", new_key.raw);
+            eprintln!("  Run:  rune auth save --key {}", new_key.raw);
+            eprintln!("═══════════════════════════════════════════════════════");
+        }
     }
 
     // ── In-memory store (hot-path read cache) ─────────────────────────────────

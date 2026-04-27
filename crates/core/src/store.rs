@@ -18,7 +18,7 @@ pub trait FunctionStore: Send + Sync {
     ///
     /// If a function with the same `id` already exists it is replaced.
     /// If a *different* function owns the same `route` or `subdomain`
-    /// the implementation must return `RuneError::DuplicateRoute`.
+    /// the implementation must return `RuneError::DuplicateIdentifier`.
     fn register(&self, func: FunctionMeta) -> Result<(), RuneError>;
 
     /// Remove a function by id.  Returns `RuneError::NotFound` when
@@ -28,4 +28,3 @@ pub trait FunctionStore: Send + Sync {
     /// Return all registered functions (used by the control plane API).
     fn list(&self) -> Result<Vec<FunctionMeta>, RuneError>;
 }
-

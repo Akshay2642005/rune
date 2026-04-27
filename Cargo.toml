@@ -29,6 +29,7 @@ tower = "0.5"
 tower-http = { version = "0.6", features = ["cors", "trace"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+atty = "0.2"
 sqlx = { workspace = true }
 
 rune-core = { workspace = true }

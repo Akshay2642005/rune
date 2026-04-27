@@ -64,7 +64,7 @@ async fn handle_inner(state: RuntimeState, req: Request) -> Result<Response, Run
     };
 
     // Fall back to path routing.
-    let _func = match func {
+    let func = match func {
         Some(f) => f,
         None => state
             .store
@@ -88,9 +88,10 @@ async fn handle_inner(state: RuntimeState, req: Request) -> Result<Response, Run
 
     // ── Dispatch ──────────────────────────────────────────────────────────────
     let runtime = state.runtime.clone();
-    let core_resp = tokio::task::spawn_blocking(move || runtime.handle_request(core_req))
-        .await
-        .map_err(|e| RuneError::InternalError(e.to_string()))??;
+    let core_resp =
+        tokio::task::spawn_blocking(move || runtime.handle_request_with_function(core_req, func))
+            .await
+            .map_err(|e| RuneError::InternalError(e.to_string()))??;
 
     // ── Build HTTP response ───────────────────────────────────────────────────
     let mut builder = Response::builder().status(core_resp.status);

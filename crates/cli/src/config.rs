@@ -1,4 +1,4 @@
-use std::{fs, path::PathBuf};
+use std::{fs, fs::OpenOptions, io::Write, path::PathBuf};
 
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
@@ -28,7 +28,17 @@ impl RuneConfig {
             fs::create_dir_all(parent)?;
         }
         let contents = toml::to_string_pretty(self)?;
-        fs::write(&path, contents)
+        let mut options = OpenOptions::new();
+        options.write(true).create(true).truncate(true);
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::OpenOptionsExt;
+            options.mode(0o600);
+        }
+        let mut file = options
+            .open(&path)
+            .with_context(|| format!("failed to write config '{}'", path.display()))?;
+        file.write_all(contents.as_bytes())
             .with_context(|| format!("failed to write config '{}'", path.display()))
     }
 

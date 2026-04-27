@@ -49,8 +49,8 @@ enum Commands {
 enum AuthCommands {
     /// Save server URL and API key to ~/.config/rune/config.toml.
     Save {
-        #[arg(long, default_value = "http://localhost:3001")]
-        url: String,
+        #[arg(long)]
+        url: Option<String>,
         #[arg(long)]
         key: String,
     },
@@ -126,10 +126,16 @@ async fn main() -> anyhow::Result<()> {
         Commands::Auth(auth_cmd) => match auth_cmd {
             AuthCommands::Save { url, key } => {
                 let mut cfg = RuneConfig::load()?;
-                cfg.server_url = Some(url.clone());
+                if let Some(url) = url.as_ref() {
+                    cfg.server_url = Some(url.clone());
+                }
                 cfg.api_key = Some(key);
                 cfg.save()?;
-                println!("config saved (server: {url})");
+                if let Some(url) = url {
+                    println!("config saved (server: {url})");
+                } else {
+                    println!("config saved");
+                }
             }
 
             AuthCommands::Show => {

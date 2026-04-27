@@ -5,14 +5,50 @@
 #   curl -fsSL ... | sh -s -- --version v0.1.1-alpha
 #   curl -fsSL ... | sh -s -- --bin runectl   # only CLI
 #   curl -fsSL ... | sh -s -- --bin server    # only server
+#   curl -fsSL ... | sh -s -- runectl         # positional (same as --bin runectl)
 set -eu
 
 REPO="Akshay2642005/rune"
 INSTALL_DIR="${RUNE_INSTALL_DIR:-/usr/local/bin}"
-BIN_FILTER="${1:-all}"  # all | runectl | server
+BIN_FILTER="all"  # all | runectl | server
+CLI_VERSION=""
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --bin)
+            shift
+            [ "$#" -gt 0 ] || { echo "error: --bin requires a value" >&2; exit 1; }
+            BIN_FILTER="$1"
+            ;;
+        --version)
+            shift
+            [ "$#" -gt 0 ] || { echo "error: --version requires a value" >&2; exit 1; }
+            CLI_VERSION="$1"
+            ;;
+        --help|-h)
+            echo "usage: install.sh [--bin all|runectl|server] [--version <tag>]" >&2
+            exit 0
+            ;;
+        --*)
+            echo "error: unknown flag '$1'" >&2
+            exit 1
+            ;;
+        *)
+            if [ "$BIN_FILTER" = "all" ]; then
+                BIN_FILTER="$1"
+            else
+                echo "error: unexpected argument '$1'" >&2
+                exit 1
+            fi
+            ;;
+    esac
+    shift
+done
 
 # ── Detect version ────────────────────────────────────────────────────────────
-if [ -n "${RUNE_VERSION:-}" ]; then
+if [ -n "$CLI_VERSION" ]; then
+    VERSION="$CLI_VERSION"
+elif [ -n "${RUNE_VERSION:-}" ]; then
     VERSION="$RUNE_VERSION"
 else
     VERSION=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" \
@@ -80,12 +116,18 @@ install_bin() {
         exit 1
     fi
 
-    # Verify checksum if sha256sum is available
+    # Verify checksum (sha256sum preferred; fallback to shasum -a 256 if available)
     SHA_URL="${URL}.sha256"
     if command -v sha256sum > /dev/null 2>&1; then
         curl -fsSL "$SHA_URL" -o "${TMP}/${ARCHIVE}.sha256" 2>/dev/null || true
         if [ -f "${TMP}/${ARCHIVE}.sha256" ]; then
             (cd "$TMP" && sha256sum -c "${ARCHIVE}.sha256" --quiet)
+            echo "  ✓ Checksum verified"
+        fi
+    elif command -v shasum > /dev/null 2>&1; then
+        curl -fsSL "$SHA_URL" -o "${TMP}/${ARCHIVE}.sha256" 2>/dev/null || true
+        if [ -f "${TMP}/${ARCHIVE}.sha256" ]; then
+            (cd "$TMP" && shasum -a 256 -c "${ARCHIVE}.sha256" >/dev/null)
             echo "  ✓ Checksum verified"
         fi
     fi

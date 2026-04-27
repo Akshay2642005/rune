@@ -19,5 +19,6 @@ CREATE TABLE IF NOT EXISTS api_keys (
     id          TEXT    PRIMARY KEY,
     name        TEXT    NOT NULL,
     key_hash    TEXT    NOT NULL UNIQUE,
+    revoked_at  INTEGER NULL DEFAULT NULL,
     created_at  INTEGER NOT NULL DEFAULT (unixepoch())
 );
