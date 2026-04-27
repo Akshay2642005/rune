@@ -151,6 +151,7 @@ pub struct FunctionRecord {
 #[derive(Debug, Deserialize)]
 pub struct CreatedKey {
     pub id: String,
+    pub name: String,
     pub key: String,
 }
 
