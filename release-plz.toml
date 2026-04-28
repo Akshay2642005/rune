@@ -1,7 +1,7 @@
 [workspace]
 git_only = true
 publish = false
-release_always = false
+release_always = true
 semver_check = false
 changelog_update = false
 # Suppress tags/releases for ALL crates by default.
@@ -53,4 +53,3 @@ name = "rune-runtime"
 git_tag_enable = false
 git_release_enable = false
 changelog_update = false
-
