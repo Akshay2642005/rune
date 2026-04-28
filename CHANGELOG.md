@@ -7,6 +7,51 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [0.2.0](https://github.com/Akshay2642005/rune/releases/tag/v0.2.0) - 2026-04-28
+
+### Added
+
+- *(runtime)* implement wasm execution engine with ABI and response
+
+### Fixed
+
+- apply CodeRabbit auto-fixes
+- *(runtime)* add memory resource limiting to WasmExecutor via StoreLimits
+
+### Other
+
+- Update release-plz workflow and config
+- Bump crate versions to 0.2.0 and simplify deploy logic
+- Update src/handler.rs
+- Potential fix for pull request finding 'CodeQL / Uncontrolled data used in path expression'
+- Potential fix for pull request finding 'CodeQL / Uncontrolled data used in path expression'
+- Generalize duplicate-route to DuplicateIdentifier
+- Add control-plane API and SQLite-backed registry
+- (chore): added sqlx and tower dependencies
+- release v0.1.1-alpha
+- (release): release-v0.1.1-alpha
+- Harden 0.1.1-alpha runtime and deploy flow
+- (release): re-release 0.1.0-alpha
+- (release): re-release 0.1.0-alpha
+- Update release-plz.yml
+- Add CLI deploy flow, runtime bootstrap, and CI
+- Add HTTP server with Axum handler
+- Tidy imports, allow dead code, update WASM fixture
+- Support base64-encoded request bodies
+- Update README.md
+- Update crates/runtime/src/executor.rs
+- Update crates/registry/src/lib.rs
+- Add WASM ABI, serialization, and executor improvements
+- add regsitry crate along with InMemoryFunctionStore and unit tests
+- Create dependabot.yml for version updates
+- implement impl std::error::Error for RuneError
+- fixup review issues
+- added minimal function metadata, function storage trait
+- add initial contract layer (request, response, error, config)
+- Update SECURITY.md
+- (bump) add required readmes ..
+- (init): initialize repo with README.md
+
 ## [0.1.1-alpha](https://github.com/Akshay2642005/rune/releases/tag/v0.1.1-alpha) - 2026-04-26
 
 ### Added
