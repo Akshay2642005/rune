@@ -7,6 +7,7 @@ use axum::{
     routing::{delete, post},
     Router,
 };
+use rand::{distributions::Alphanumeric, Rng};
 use serde::Serialize;
 
 use rune_core::FunctionMeta;
@@ -44,7 +45,7 @@ impl From<FunctionMeta> for FunctionResponse {
 //
 // Multipart fields:
 //   id        — function identifier (required)
-//   route     — URL path, must start with '/' (required)
+//   route     — URL path, must start with '/' (optional; auto-generated if omitted)
 //   subdomain — label for <subdomain>.<base_domain> (optional)
 //   wasm      — the compiled .wasm file (required)
 
@@ -68,18 +69,29 @@ async fn deploy(
     }
 
     let id = id.ok_or_else(|| bad_request("missing field: id"))?;
-    let route = route.ok_or_else(|| bad_request("missing field: route"))?;
     let bytes = wasm_bytes.ok_or_else(|| bad_request("missing field: wasm"))?;
 
     if id.trim().is_empty() {
         return Err(bad_request("id cannot be empty"));
     }
-    if !route.starts_with('/') {
-        return Err(bad_request("route must start with '/'"));
+
+    let route = route
+        .map(|r| r.trim().to_string())
+        .filter(|r| !r.is_empty());
+
+    if let Some(route) = route.as_ref() {
+        if !route.starts_with('/') {
+            return Err(bad_request("route must start with '/'"));
+        }
     }
 
     // Strip empty subdomain string → None
     let subdomain = subdomain.filter(|s| !s.trim().is_empty());
+
+    let route = match route {
+        Some(route) => route,
+        None => existing_route_for_id(&state, &id).unwrap_or_else(|| generate_route(&id)),
+    };
 
     // Write WASM artifact to disk.
     fs::create_dir_all(&state.wasm_dir)
@@ -174,4 +186,24 @@ fn bad_request(msg: impl ToString) -> (StatusCode, String) {
 
 fn internal(msg: impl ToString) -> (StatusCode, String) {
     (StatusCode::INTERNAL_SERVER_ERROR, msg.to_string())
+}
+
+fn existing_route_for_id(state: &ApiState, id: &str) -> Option<String> {
+    state
+        .store
+        .list()
+        .ok()?
+        .into_iter()
+        .find(|f| f.id == id)
+        .map(|f| f.route)
+}
+
+fn generate_route(id: &str) -> String {
+    let slug: String = rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(8)
+        .map(char::from)
+        .collect();
+    let slug = slug.to_lowercase();
+    format!("/{id}_{slug}")
 }

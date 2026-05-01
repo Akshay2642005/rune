@@ -24,9 +24,9 @@ enum Commands {
         /// Function identifier (unique, URL-safe).
         #[arg(long)]
         id: String,
-        /// URL path to serve the function at (e.g. /hello).
+        /// URL path to serve the function at (e.g. /hello). If omitted, a random route is generated.
         #[arg(long)]
-        route: String,
+        route: Option<String>,
         /// Subdomain label (e.g. "hello" → hello.<base_domain>).
         #[arg(long)]
         subdomain: Option<String>,
@@ -87,7 +87,9 @@ async fn main() -> anyhow::Result<()> {
             wasm,
         } => {
             let c = rune_client(&cfg)?;
-            let f = c.deploy(&id, &route, subdomain.as_deref(), &wasm).await?;
+            let f = c
+                .deploy(&id, route.as_deref(), subdomain.as_deref(), &wasm)
+                .await?;
             println!("deployed '{}'", f.id);
             println!("  route:     {}", f.route);
             if let Some(sub) = f.subdomain {

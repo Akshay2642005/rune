@@ -19,10 +19,17 @@ impl RuneClient {
         let parsed = reqwest::Url::parse(&server_url)
             .with_context(|| format!("invalid server URL: '{server_url}'"))?;
         if parsed.scheme() != "https" {
-            anyhow::bail!(
-                "insecure server URL scheme '{}': HTTPS is required",
-                parsed.scheme()
-            );
+            let host = parsed.host_str().unwrap_or_default();
+            let is_loopback = matches!(host, "localhost" | "127.0.0.1" | "::1");
+
+            if parsed.scheme() == "http" && is_loopback {
+                eprintln!("warning: using insecure HTTP for local server URL '{server_url}'");
+            } else {
+                anyhow::bail!(
+                    "insecure server URL scheme '{}': HTTPS is required",
+                    parsed.scheme()
+                );
+            }
         }
 
         Ok(Self {
@@ -49,7 +56,7 @@ impl RuneClient {
     pub async fn deploy(
         &self,
         id: &str,
-        route: &str,
+        route: Option<&str>,
         subdomain: Option<&str>,
         wasm_path: &Path,
     ) -> anyhow::Result<FunctionRecord> {
@@ -58,8 +65,11 @@ impl RuneClient {
 
         let mut form = Form::new()
             .text("id", id.to_string())
-            .text("route", route.to_string())
             .part("wasm", Part::bytes(bytes).file_name("function.wasm"));
+
+        if let Some(route) = route.filter(|r| !r.trim().is_empty()) {
+            form = form.text("route", route.to_string());
+        }
 
         if let Some(sub) = subdomain {
             form = form.text("subdomain", sub.to_string());
