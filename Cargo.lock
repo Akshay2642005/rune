@@ -2368,7 +2368,7 @@ dependencies = [
 
 [[package]]
 name = "rune-core"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "base64",
  "serde",
@@ -2378,7 +2378,7 @@ dependencies = [
 
 [[package]]
 name = "rune-registry"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "hex",
@@ -2394,7 +2394,7 @@ dependencies = [
 
 [[package]]
 name = "rune-runtime"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "parking_lot",
@@ -2408,7 +2408,7 @@ dependencies = [
 
 [[package]]
 name = "rune-server"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "atty",
@@ -2439,7 +2439,7 @@ dependencies = [
 
 [[package]]
 name = "runectl"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "clap",

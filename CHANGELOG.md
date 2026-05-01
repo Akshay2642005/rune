@@ -7,6 +7,26 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [0.2.1](https://github.com/Akshay2642005/rune/releases/tag/v0.2.1) - 2026-05-01
+
+### Added
+
+- Auto-generate function routes when omitted and reuse existing routes on redeploy.
+- Allow optional routes in the CLI deploy flow and control-plane API.
+- Route `"/"` through the function handler to support subdomain-only access.
+
+### Changed
+
+- Install the Rustls crypto provider explicitly at startup to avoid runtime panics.
+- Allow local HTTP control-plane URLs in the CLI (with a warning).
+- Upgrade ACME provisioning to `instant-acme` 0.8.5 and update the DNS-01 flow.
+- Improve host detection for subdomain routing by falling back to URI authority.
+
+### Fixed
+
+- Align the ACME DNS TXT prompt box output.
+- Normalize HTTPS + control-plane join error handling in TLS mode.
+
 ## [0.2.0](https://github.com/Akshay2642005/rune/releases/tag/v0.2.0) - 2026-04-28
 
 ### Added
