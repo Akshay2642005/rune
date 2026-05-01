@@ -32,6 +32,14 @@ tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
 atty = "0.2"
 sqlx = { workspace = true }
 
+tokio-rustls  = "0.26"
+rustls        = { version = "0.23", features = ["ring"] }
+rustls-pemfile = "2"
+instant-acme  = { version = "0.8.5", features = ["hyper-rustls"] }
+rcgen         = "0.13"
+hyper         = { version = "1", features = ["http1", "http2"] }
+hyper-util    = { version = "0.1", features = ["tokio", "server-auto"] }
+
 rune-core = { workspace = true }
 rune-registry = { workspace = true }
 rune-runtime = { workspace = true }

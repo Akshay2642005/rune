@@ -19,10 +19,17 @@ impl RuneClient {
         let parsed = reqwest::Url::parse(&server_url)
             .with_context(|| format!("invalid server URL: '{server_url}'"))?;
         if parsed.scheme() != "https" {
-            anyhow::bail!(
-                "insecure server URL scheme '{}': HTTPS is required",
-                parsed.scheme()
-            );
+            let host = parsed.host_str().unwrap_or_default();
+            let is_loopback = matches!(host, "localhost" | "127.0.0.1" | "::1");
+
+            if parsed.scheme() == "http" && is_loopback {
+                eprintln!("warning: using insecure HTTP for local server URL '{server_url}'");
+            } else {
+                anyhow::bail!(
+                    "insecure server URL scheme '{}': HTTPS is required",
+                    parsed.scheme()
+                );
+            }
         }
 
         Ok(Self {
