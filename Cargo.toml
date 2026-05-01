@@ -68,9 +68,9 @@ toml = "0.8"
 dirs = "5"
 clap       = { version = "4.5", features = ["derive"] }
 
-rune-core = { version = "0.2.1", path = "crates/core" }
-rune-registry = { version = "0.2.1", path = "crates/registry" }
-rune-runtime = { version = "0.2.1", path = "crates/runtime" }
+rune-core = { version = "0.2.0", path = "crates/core" }
+rune-registry = { version = "0.2.0", path = "crates/registry" }
+rune-runtime = { version = "0.2.0", path = "crates/runtime" }
 runectl = { version = "0.2.1", path = "crates/cli" }
 
 
