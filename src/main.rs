@@ -82,6 +82,7 @@ async fn main() -> Result<()> {
     // ── Database ──────────────────────────────────────────────────────────────
     std::fs::create_dir_all(".rune")?;
     let pool = rune_registry::open(&db_path).await?;
+    let _ = rune_registry::run_migrations(&pool);
 
     // ── First-run: generate an API key if none exist ──────────────────────────
     let keys = rune_registry::list_api_keys(&pool).await?;
@@ -115,6 +116,7 @@ async fn main() -> Result<()> {
         base_domain: base_domain.clone(),
     };
     let fn_router = Router::new()
+        .route("/", any(handler))
         .route("/{*path}", any(handler))
         .with_state(rt_state);
 

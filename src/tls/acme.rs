@@ -73,10 +73,10 @@ pub async fn provision(store: &CertStore, domain: &str, email: &str, staging: bo
         eprintln!("╠══════════════════════════════════════════════════════════════╣");
         eprintln!("║  Add the following DNS TXT record to your DNS zone:          ║");
         eprintln!("║                                                              ║");
-        eprintln!("║  Name:  _acme-challenge.{domain:<39}║");
+        eprintln!("║  Name:  _acme-challenge.{domain:<37}║");
         eprintln!("║  Type:  TXT                                                  ║");
         for txt in &challenge_values {
-            eprintln!("║  Value: {txt:<54}║");
+            eprintln!("║  Value: {txt:<53}║");
         }
         eprintln!("║                                                              ║");
         eprintln!("║  Wait for DNS propagation (~60 s), then press Enter.         ║");

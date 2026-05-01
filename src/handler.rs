@@ -11,6 +11,7 @@ use http_body_util::BodyExt;
 
 use rune_core::{CoreRequest, FunctionStore, Headers, RuneError};
 use rune_runtime::Runtime;
+use tracing::debug;
 
 use crate::error::map_error;
 
@@ -49,11 +50,24 @@ async fn handle_inner(state: RuntimeState, req: Request) -> Result<Response, Run
         }
     }
 
+    let host = parts
+        .headers
+        .get("host")
+        .and_then(|v| v.to_str().ok())
+        .or_else(|| parts.uri.authority().map(|a| a.as_str()))
+        .unwrap_or("");
+
+    debug!(
+        host = host,
+        path = path.as_str(),
+        base_domain = state.base_domain.as_deref().unwrap_or(""),
+        "incoming request"
+    );
+
     // ── Subdomain routing ─────────────────────────────────────────────────────
     // If the Host header contains a subdomain of base_domain, look up by
     // subdomain first.  Fall back to path-based routing.
     let func = if let Some(base) = &state.base_domain {
-        let host = headers.get("host").unwrap_or("");
         if let Some(sub) = extract_subdomain(host, base) {
             state.store.get_by_subdomain(sub)?
         } else {

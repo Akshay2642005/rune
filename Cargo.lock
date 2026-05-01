@@ -2418,6 +2418,7 @@ dependencies = [
  "hyper",
  "hyper-util",
  "instant-acme",
+ "rand",
  "rcgen 0.13.2",
  "rune-core",
  "rune-registry",
