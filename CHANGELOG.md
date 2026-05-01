@@ -7,45 +7,25 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
-## [0.2.1](https://github.com/Akshay2642005/rune/compare/v0.2.0...v0.2.1) - 2026-05-01
+## [0.2.1](https://github.com/Akshay2642005/rune/releases/tag/v0.2.1) - 2026-05-01
 
 ### Added
 
-- *(runtime)* implement wasm execution engine with ABI and response
+- Auto-generate function routes when omitted and reuse existing routes on redeploy.
+- Allow optional routes in the CLI deploy flow and control-plane API.
+- Route `"/"` through the function handler to support subdomain-only access.
+
+### Changed
+
+- Install the Rustls crypto provider explicitly at startup to avoid runtime panics.
+- Allow local HTTP control-plane URLs in the CLI (with a warning).
+- Upgrade ACME provisioning to `instant-acme` 0.8.5 and update the DNS-01 flow.
+- Improve host detection for subdomain routing by falling back to URI authority.
 
 ### Fixed
 
-- apply CodeRabbit auto-fixes
-- *(runtime)* add memory resource limiting to WasmExecutor via StoreLimits
-
-### Other
-
-- Make route optional and auto-generate when omitted
-- Add ACME TLS wildcard support
-- release v0.2.0
-- Bump crate versions to 0.2.0 and simplify deploy logic
-- Update crates/cli/src/client.rs
-- Potential fix for pull request finding 'CodeQL / Cleartext transmission of sensitive information'
-- Generalize duplicate-route to DuplicateIdentifier
-- Add control-plane API and SQLite-backed registry
-- (release): release-v0.1.1-alpha
-- Harden 0.1.1-alpha runtime and deploy flow
-- (release): re-release 0.1.0-alpha
-- Add CLI deploy flow, runtime bootstrap, and CI
-- Add HTTP server with Axum handler
-- Update README.md
-- Add WASM ABI, serialization, and executor improvements
-- (bump) add required readmes ..
-- (init): initialize repo with README.md
-- Tidy imports, allow dead code, update WASM fixture
-- Support base64-encoded request bodies
-- add regsitry crate along with InMemoryFunctionStore and unit tests
-- implement impl std::error::Error for RuneError
-- fixup review issues
-- added minimal function metadata, function storage trait
-- add initial contract layer (request, response, error, config)
-- Update crates/registry/src/lib.rs
-- Update crates/runtime/src/executor.rs
+- Align the ACME DNS TXT prompt box output.
+- Normalize HTTPS + control-plane join error handling in TLS mode.
 
 ## [0.2.0](https://github.com/Akshay2642005/rune/releases/tag/v0.2.0) - 2026-04-28
 
