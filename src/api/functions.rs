@@ -113,17 +113,17 @@ async fn deploy(
         .map_err(|e| internal(e.to_string()))?;
 
     // Update the hot in-memory cache.
-    state.store.register(meta.clone()).map_err(|e| {
+    if let Err(e) = state.store.register(meta.clone()) {
         // If in-memory rejects (e.g. duplicate route from different id), roll back DB.
-        let _ = tokio::spawn({
+        std::mem::drop(tokio::spawn({
             let pool = state.pool.clone();
             let id = id.clone();
             async move {
                 let _ = rune_registry::delete_function(&pool, &id).await;
             }
-        });
-        (StatusCode::CONFLICT, e.to_string())
-    })?;
+        }));
+        return Err((StatusCode::CONFLICT, e.to_string()));
+    }
 
     Ok(Json(meta.into()))
 }

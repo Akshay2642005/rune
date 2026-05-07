@@ -7,6 +7,8 @@ use serde::{Deserialize, Serialize};
 pub struct RuneConfig {
     /// Base URL of the control-plane API (e.g. "http://localhost:3001").
     pub server_url: Option<String>,
+    /// Base URL for function invocation traffic (e.g. "http://localhost:3000").
+    pub function_url: Option<String>,
     /// Raw API key (rune_sk_…).
     pub api_key: Option<String>,
 }

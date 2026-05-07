@@ -73,25 +73,24 @@ impl FunctionStore for InMemoryFunctionStore {
         let mut g = self.write_lock()?;
 
         // Check route collision (different function owns this route).
-        if let Some(owner_id) = g.route_index.get(&meta.route) {
-            if owner_id != &meta.id {
-                return Err(RuneError::DuplicateIdentifier {
-                    field: "route".to_string(),
-                    value: meta.route.clone(),
-                });
-            }
+        if let Some(owner_id) = g.route_index.get(&meta.route)
+            && owner_id != &meta.id
+        {
+            return Err(RuneError::DuplicateIdentifier {
+                field: "route".to_string(),
+                value: meta.route.clone(),
+            });
         }
 
         // Check subdomain collision.
-        if let Some(sub) = &meta.subdomain {
-            if let Some(owner_id) = g.subdomain_index.get(sub) {
-                if owner_id != &meta.id {
-                    return Err(RuneError::DuplicateIdentifier {
-                        field: "subdomain".to_string(),
-                        value: sub.clone(),
-                    });
-                }
-            }
+        if let Some(sub) = &meta.subdomain
+            && let Some(owner_id) = g.subdomain_index.get(sub)
+            && owner_id != &meta.id
+        {
+            return Err(RuneError::DuplicateIdentifier {
+                field: "subdomain".to_string(),
+                value: sub.clone(),
+            });
         }
 
         // Remove stale indexes if this id already exists.

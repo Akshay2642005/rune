@@ -1,5 +1,6 @@
 mod client;
 mod config;
+mod tui;
 
 use std::path::PathBuf;
 
@@ -39,6 +40,9 @@ enum Commands {
 
     /// Remove a deployed function by id.
     Remove { id: String },
+
+    /// Open a terminal dashboard for functions and API keys.
+    Dashboard,
 
     /// Manage authentication config and API keys.
     #[command(subcommand)]
@@ -104,7 +108,7 @@ async fn main() -> anyhow::Result<()> {
             if functions.is_empty() {
                 println!("no functions deployed");
             } else {
-                println!("{:<20} {:<25} {}", "ID", "ROUTE", "SUBDOMAIN");
+                println!("{:<20} {:<25} SUBDOMAIN", "ID", "ROUTE");
                 println!("{}", "─".repeat(60));
                 for f in functions {
                     println!(
@@ -122,6 +126,11 @@ async fn main() -> anyhow::Result<()> {
             let c = rune_client(&cfg)?;
             c.delete_function(&id).await?;
             println!("removed '{id}'");
+        }
+
+        Commands::Dashboard => {
+            let c = rune_client(&cfg)?;
+            tui::run(c).await?;
         }
 
         // ── Auth subcommands ──────────────────────────────────────────────────
@@ -168,7 +177,7 @@ async fn main() -> anyhow::Result<()> {
                 if keys.is_empty() {
                     println!("no API keys");
                 } else {
-                    println!("{:<38} {}", "ID", "NAME");
+                    println!("{:<38} NAME", "ID");
                     println!("{}", "─".repeat(50));
                     for k in keys {
                         println!("{:<38} {}", k.id, k.name);
