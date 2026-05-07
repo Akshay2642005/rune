@@ -9,6 +9,7 @@ Rune is a self-hosted WASM function runtime inspired by Cloudflare Workers and D
 - **Per-function subdomains** — deploy `hello` and reach it at `hello.yourdomain.com`
 - **REST control plane** — deploy, list, and remove functions via HTTP API
 - **CLI** (`rune`) for deploys and API key management
+- **TUI dashboard** — inspect functions and API keys from your terminal
 - **SQLite persistence** — single-file database, zero ops
 - **Self-hostable** — single binary, works on any Linux VPS
 
@@ -30,6 +31,9 @@ rune deploy --id hello --route /hello examples/hello/target/wasm32-unknown-unkno
 
 # Invoke it
 curl http://localhost:3000/hello
+
+# Open the terminal dashboard
+rune dashboard
 ```
 
 ## TLS + wildcard subdomains
@@ -125,7 +129,7 @@ See [docs/abi.md](docs/abi.md) for the guest module interface contract.
 | CLI (HTTP)       | ██████████ 100% |
 | TLS / ACME       | ██████████ 100% |
 | Subdomain routing| ██████████ 100% |
-| TUI dashboard    | ░░░░░░░░░░   0% |
+| TUI dashboard    | ██████░░░░  60% |
 | Web UI           | ░░░░░░░░░░   0% |
 
 ## Releases

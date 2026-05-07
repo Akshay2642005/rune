@@ -153,7 +153,7 @@ async fn parse_response<T: for<'de> Deserialize<'de>>(
 
 // ── Response types ────────────────────────────────────────────────────────────
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct FunctionRecord {
     pub id: String,
     pub subdomain: Option<String>,
@@ -167,7 +167,7 @@ pub struct CreatedKey {
     pub key: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct KeyRecord {
     pub id: String,
     pub name: String,

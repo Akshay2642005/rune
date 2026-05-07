@@ -82,7 +82,7 @@ async fn main() -> Result<()> {
     // ── Database ──────────────────────────────────────────────────────────────
     std::fs::create_dir_all(".rune")?;
     let pool = rune_registry::open(&db_path).await?;
-    let _ = rune_registry::run_migrations(&pool);
+    rune_registry::run_migrations(&pool).await?;
 
     // ── First-run: generate an API key if none exist ──────────────────────────
     let keys = rune_registry::list_api_keys(&pool).await?;

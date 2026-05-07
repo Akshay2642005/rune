@@ -67,6 +67,8 @@ reqwest = { version = "0.12" , features = ["multipart", "json"] }
 toml = "0.8"
 dirs = "5"
 clap       = { version = "4.5", features = ["derive"] }
+ratatui = "0.29"
+crossterm = "0.28"
 
 rune-core = { version = "0.2.0", path = "crates/core" }
 rune-registry = { version = "0.2.0", path = "crates/registry" }
