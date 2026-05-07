@@ -22,6 +22,7 @@ toml       = { workspace = true }
 dirs       = { workspace = true }
 ratatui    = { workspace = true }
 crossterm  = { workspace = true }
+arboard    = "3"
 
 
 [dev-dependencies]
