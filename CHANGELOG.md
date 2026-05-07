@@ -7,7 +7,33 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
-## [0.2.1](https://github.com/Akshay2642005/rune/releases/tag/v0.2.1) - 2026-05-01
+## [0.2.2](https://github.com/Akshay2642005/rune/releases/tag/v0.2.2) - 2026-05-08
+
+### Added
+
+- TUI dashboard: `Config` tab for editing control-plane URL, function URL, and API key in-TUI; `F2` saves to disk and rebuilds the client live.
+- TUI dashboard: deploy form overlay (`D`) — deploy a WASM function by filling in id, route, subdomain, and path without leaving the dashboard.
+- TUI dashboard: invoke overlay (`i`) — fire a GET request to the selected function's route and view the response in a scrollable popup.
+- TUI dashboard: confirm prompt before destructive actions (delete function, revoke key).
+- TUI dashboard: create key dialog (`n`) — create API keys from within the dashboard.
+- TUI dashboard: live search/filter (`/`) across functions and keys; list titles show `(filtered/total)` counts.
+- TUI dashboard: clipboard copy (`c`) — copies function URL or key ID via `arboard`.
+- TUI dashboard: splash screen with animated spinner on startup; shows a clear error and exits gracefully if the server is unreachable.
+- TUI dashboard: connection status dot in the header (green / yellow loading / red offline).
+- TUI dashboard: vim-style half-page scroll (`Ctrl-d` / `Ctrl-u`).
+- `RuneClient::with_function_url` constructor; `function_url` field added to `RuneConfig` for separate control-plane vs. function-traffic URLs.
+- `RuneClient` now exposes `server_url()`, `api_key()`, `function_url`, and `invoke_function()` helpers.
+
+### Changed
+
+- All TUI network calls moved off the event loop into `tokio::spawn` tasks communicating via `mpsc::Sender<BgResult>`; the UI never blocks on I/O.
+- `POLL_INTERVAL` reduced from 250 ms → 100 ms; `REFRESH_TIMEOUT` raised from 2 s → 5 s.
+- `DashboardTab` gains a third variant `Config`; tab cycling updated accordingly.
+- Footer toast moved to a dedicated row; footer left now shows INSERT / NORMAL / CONFIRM / INVOKE mode label plus active search query.
+- Help popup expanded with grouped Navigation / Actions sections.
+- `RuneClient` derives `Clone`.
+
+## [0.2.1](https://github.com/Akshay2642005/rune/releases/tag/v0.2.1) - 2026-05-01(https://github.com/Akshay2642005/rune/releases/tag/v0.2.1) - 2026-05-01
 
 ### Added
 
