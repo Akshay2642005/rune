@@ -70,9 +70,9 @@ clap       = { version = "4.5", features = ["derive"] }
 ratatui = "0.29"
 crossterm = "0.28"
 
-rune-core = { version = "0.2.1", path = "crates/core" }
-rune-registry = { version = "0.2.1", path = "crates/registry" }
-rune-runtime = { version = "0.2.1", path = "crates/runtime" }
+rune-core = { version = "0.2.2", path = "crates/core" }
+rune-registry = { version = "0.2.2", path = "crates/registry" }
+rune-runtime = { version = "0.2.2", path = "crates/runtime" }
 runectl = { version = "0.2.2", path = "crates/cli" }
 
 

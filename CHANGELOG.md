@@ -7,51 +7,33 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
-## [0.2.2](https://github.com/Akshay2642005/rune/compare/v0.2.1...v0.2.2) - 2026-05-07
+## [0.2.2](https://github.com/Akshay2642005/rune/releases/tag/v0.2.2) - 2026-05-08
 
 ### Added
 
-- *(tui)* overhaul dashboard with overlays, async I/O, and Config tab
-- *(runtime)* implement wasm execution engine with ABI and response
+- TUI dashboard: `Config` tab for editing control-plane URL, function URL, and API key in-TUI; `F2` saves to disk and rebuilds the client live.
+- TUI dashboard: deploy form overlay (`D`) — deploy a WASM function by filling in id, route, subdomain, and path without leaving the dashboard.
+- TUI dashboard: invoke overlay (`i`) — fire a GET request to the selected function's route and view the response in a scrollable popup.
+- TUI dashboard: confirm prompt before destructive actions (delete function, revoke key).
+- TUI dashboard: create key dialog (`n`) — create API keys from within the dashboard.
+- TUI dashboard: live search/filter (`/`) across functions and keys; list titles show `(filtered/total)` counts.
+- TUI dashboard: clipboard copy (`c`) — copies function URL or key ID via `arboard`.
+- TUI dashboard: splash screen with animated spinner on startup; shows a clear error and exits gracefully if the server is unreachable.
+- TUI dashboard: connection status dot in the header (green / yellow loading / red offline).
+- TUI dashboard: vim-style half-page scroll (`Ctrl-d` / `Ctrl-u`).
+- `RuneClient::with_function_url` constructor; `function_url` field added to `RuneConfig` for separate control-plane vs. function-traffic URLs.
+- `RuneClient` now exposes `server_url()`, `api_key()`, `function_url`, and `invoke_function()` helpers.
 
-### Fixed
+### Changed
 
-- apply CodeRabbit auto-fixes
-- *(runtime)* add memory resource limiting to WasmExecutor via StoreLimits
+- All TUI network calls moved off the event loop into `tokio::spawn` tasks communicating via `mpsc::Sender<BgResult>`; the UI never blocks on I/O.
+- `POLL_INTERVAL` reduced from 250 ms → 100 ms; `REFRESH_TIMEOUT` raised from 2 s → 5 s.
+- `DashboardTab` gains a third variant `Config`; tab cycling updated accordingly.
+- Footer toast moved to a dedicated row; footer left now shows INSERT / NORMAL / CONFIRM / INVOKE mode label plus active search query.
+- Help popup expanded with grouped Navigation / Actions sections.
+- `RuneClient` derives `Clone`.
 
-### Other
-
-- (spec): update tui ux design - working-1
-- release
-- (spec): added tui components and notification toast helper function for
-- Bump version to 0.2.1 and update changelog
-- Make route optional and auto-generate when omitted
-- Add ACME TLS wildcard support
-- Bump crate versions to 0.2.0 and simplify deploy logic
-- Update crates/cli/src/client.rs
-- Potential fix for pull request finding 'CodeQL / Cleartext transmission of sensitive information'
-- Generalize duplicate-route to DuplicateIdentifier
-- Add control-plane API and SQLite-backed registry
-- (release): release-v0.1.1-alpha
-- Harden 0.1.1-alpha runtime and deploy flow
-- (release): re-release 0.1.0-alpha
-- Add CLI deploy flow, runtime bootstrap, and CI
-- Add HTTP server with Axum handler
-- Update README.md
-- Add WASM ABI, serialization, and executor improvements
-- (bump) add required readmes ..
-- (init): initialize repo with README.md
-- Tidy imports, allow dead code, update WASM fixture
-- Support base64-encoded request bodies
-- add regsitry crate along with InMemoryFunctionStore and unit tests
-- implement impl std::error::Error for RuneError
-- fixup review issues
-- added minimal function metadata, function storage trait
-- add initial contract layer (request, response, error, config)
-- Update crates/registry/src/lib.rs
-- Update crates/runtime/src/executor.rs
-
-## [0.2.1](https://github.com/Akshay2642005/rune/releases/tag/v0.2.1) - 2026-05-01
+## [0.2.1](https://github.com/Akshay2642005/rune/releases/tag/v0.2.1) - 2026-05-01(https://github.com/Akshay2642005/rune/releases/tag/v0.2.1) - 2026-05-01
 
 ### Added
 
