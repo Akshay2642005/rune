@@ -12,7 +12,7 @@ categories = ["web-programming", "wasm"]
 default-run = "rune-server"
 
 [workspace]
-members = ["crates/core", "crates/registry", "crates/cli", "crates/runtime"]
+members = ["crates/core", "crates/registry", "crates/cli", "crates/runtime", "src-leptos"]
 exclude = ["examples/hello", "examples/wasm_web"]
 resolver = "3"
 
@@ -70,10 +70,20 @@ clap       = { version = "4.5", features = ["derive"] }
 ratatui = "0.29"
 crossterm = "0.28"
 
+# src-leptos
+leptos = { version = "0.7", features = ["csr","nightly"] }
+leptos_router = { version = "0.7" }
+wasm-bindgen = "0.2"
+console_error_panic_hook = "0.1"
+
+
 rune-core = { version = "0.2.2", path = "crates/core" }
 rune-registry = { version = "0.2.2", path = "crates/registry" }
 rune-runtime = { version = "0.2.2", path = "crates/runtime" }
 runectl = { version = "0.2.2", path = "crates/cli" }
+tw_merge = { version = "0.1.21", features = ["variant"] }
+icons = { version = "0.18.2", features = ["leptos"] }
+leptos_ui = "0.3.22"
 
 
 [dev-dependencies]
