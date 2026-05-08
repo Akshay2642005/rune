@@ -1,5 +1,4 @@
 use leptos::prelude::*;
-use web_sys::Storage;
 
 #[derive(Debug, Clone, Copy)]
 pub struct ThemeMode {
@@ -77,7 +76,7 @@ impl ThemeMode {
     /* ========================================================== */
 
     /// Retrieves the local storage object, if available.
-    fn get_storage() -> Option<Storage> {
+    fn get_storage() -> Option<web_sys::Storage> {
         window().local_storage().ok().flatten()
     }
 

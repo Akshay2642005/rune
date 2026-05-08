@@ -21,8 +21,8 @@ impl DatePickerDualState {
         let end_date_query = QueryUtils::extract(QUERY::END_DATE.to_string());
 
         let initial_state = Memo::new(move |_| {
-            let start = start_date_query.get();
-            let end = end_date_query.get();
+            let start = start_date_query();
+            let end = end_date_query();
 
             let fallback_start = Date::from_calendar_date(2025, Month::May, 5).unwrap_or(Date::MIN);
             let fallback_end = Date::from_calendar_date(2025, Month::May, 14).unwrap_or(Date::MIN);

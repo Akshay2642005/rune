@@ -34,13 +34,9 @@ mod components {
 
 pub use components::*;
 
-/* ========================================================== */
-/*                     ✨ FUNCTIONS ✨                        */
-/* ========================================================== */
-
 #[component]
 fn CountryItem(country: Country, selected_country: RwSignal<Country>) -> impl IntoView {
-    let search_value = format!("{} {} {}", country.name(), country.alpha2(), country.dial_code_formatted(),);
+    let search_value = format!("{} {} {}", country.name(), country.alpha2(), country.dial_code_formatted());
     let is_selected = Signal::derive(move || selected_country.get() == country);
 
     view! {
@@ -99,26 +95,18 @@ pub fn InputPhone(
                         </div>
                         <CommandList class="min-h-0 max-h-[280px]">
                             <CommandEmpty>"No country found."</CommandEmpty>
-
-                            // Common countries
                             <CommandGroup>
                                 {COMMON_COUNTRIES
                                     .iter()
-                                    .map(|&country| {
-                                        view! { <CountryItem country selected_country /> }
-                                    })
+                                    .map(|&country| view! { <CountryItem country selected_country /> })
                                     .collect_view()}
                             </CommandGroup>
-
-                            // Separator + rest of countries
                             <CommandGroup>
                                 <CommandGroupLabel>"All countries"</CommandGroupLabel>
                                 {Country::all()
                                     .iter()
                                     .filter(|c| !COMMON_COUNTRIES.contains(c))
-                                    .map(|&country| {
-                                        view! { <CountryItem country selected_country /> }
-                                    })
+                                    .map(|&country| view! { <CountryItem country selected_country /> })
                                     .collect_view()}
                             </CommandGroup>
                         </CommandList>
@@ -126,7 +114,6 @@ pub fn InputPhone(
                 </PopoverContent>
             </Popover>
 
-            // Phone number input - displays formatted, stores raw digits
             <div class="relative flex-1">
                 <Input
                     class="pr-8 w-full rounded-l-none"

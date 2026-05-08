@@ -1,6 +1,8 @@
+use leptos::html;
 use leptos::prelude::*;
 use leptos_ui::clx;
 use tw_merge::*;
+use web_sys::Element;
 
 use crate::components::ui::button::{Button, ButtonSize, ButtonVariant};
 
@@ -18,6 +20,16 @@ pub use components::*;
 #[derive(Clone)]
 pub struct DrawerContext {
     open: RwSignal<bool>,
+    overlay_ref: NodeRef<html::Div>,
+    content_ref: NodeRef<html::Div>,
+    hidden: RwSignal<bool>,
+    state: RwSignal<&'static str>,
+    content_animate: RwSignal<bool>,
+    overlay_animate: RwSignal<bool>,
+    dismissible: RwSignal<bool>,
+    lock_body_scroll: bool,
+    previous_active_element: RwSignal<Option<Element>>,
+    animation_epoch: RwSignal<u64>,
 }
 
 impl DrawerContext {
@@ -134,7 +146,7 @@ pub fn Drawer(
             }
             data-vaul-overlay=""
             data-vaul-snap-points="false"
-            data-vaul-animate=move || bool_attr(overlay_animate.get())
+            data-vaul-animate=move || if overlay_animate.get() { "true" } else { "false" }
             data-state=move || state.get()
             data-lock-body-scroll=if lock_body_scroll { "true" } else { "false" }
         ></div>

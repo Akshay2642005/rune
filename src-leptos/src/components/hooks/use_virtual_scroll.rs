@@ -6,7 +6,8 @@ use leptos::prelude::*;
 use wasm_bindgen::JsCast;
 use wasm_bindgen::closure::Closure;
 
-use crate::constants::PAGINATION;
+/// Default row height in pixels for virtual scrolling
+const ROW_HEIGHT: usize = 40;
 
 /// Buffer rows to render above/below viewport for smooth scrolling
 const BUFFER_ROWS: usize = 5;
@@ -114,7 +115,7 @@ pub fn use_virtual_scroll(container_ref: NodeRef<html::Div>, total_rows: Signal<
 
     let start_index = Memo::new(move |_| {
         let scroll_top = scroll_top_signal.get();
-        let start = scroll_top / PAGINATION::ROW_HEIGHT;
+        let start = scroll_top / ROW_HEIGHT;
         start.saturating_sub(BUFFER_ROWS)
     });
 
@@ -123,14 +124,14 @@ pub fn use_virtual_scroll(container_ref: NodeRef<html::Div>, total_rows: Signal<
         let container_height = container_height_signal.get();
         let total = total_rows.get();
 
-        let visible_rows = (container_height / PAGINATION::ROW_HEIGHT) + 1;
-        let start = scroll_top / PAGINATION::ROW_HEIGHT;
+        let visible_rows = (container_height / ROW_HEIGHT) + 1;
+        let start = scroll_top / ROW_HEIGHT;
         let end = start + visible_rows + BUFFER_ROWS * 2;
 
         end.min(total)
     });
 
-    let total_height = Signal::derive(move || total_rows.get() * PAGINATION::ROW_HEIGHT);
+    let total_height = Signal::derive(move || total_rows.get() * ROW_HEIGHT);
 
     VirtualScrollState { start_index, end_index, total_height }
 }

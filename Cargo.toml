@@ -71,10 +71,12 @@ ratatui = "0.29"
 crossterm = "0.28"
 
 # src-leptos
-leptos = { version = "0.7", features = ["csr"] }
-leptos_router = { version = "0.7" }
+leptos = { version = "0.8", features = ["csr"] }
+leptos_router = { version = "0.8" }
 wasm-bindgen = "0.2"
 console_error_panic_hook = "0.1"
+js-sys = "0.3"
+time = { version = "0.3", features = ["wasm-bindgen"] }
 
 
 rune-core = { version = "0.2.2", path = "crates/core" }

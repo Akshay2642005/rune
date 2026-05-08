@@ -16,9 +16,9 @@
 
 use std::cell::RefCell;
 
+use wasm_bindgen::JsCast;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsCast;
 
 /// Component data-names excluded from scroll locking (internal scrollable areas).
 const EXCLUDED_DATA_NAMES: &[&str] = &[
@@ -149,7 +149,9 @@ fn parse_px(s: &str) -> f64 {
 ///
 /// Call once at app startup. Subsequent calls are no-ops.
 pub fn init() {
-    let Some(window) = web_sys::window() else { return };
+    let Some(window) = web_sys::window() else {
+        return;
+    };
     let window_js: &JsValue = window.as_ref();
 
     // Prevent double initialization
@@ -203,8 +205,12 @@ pub fn lock() {
         return;
     }
 
-    let Some(window) = web_sys::window() else { return };
-    let Some(document) = window.document() else { return };
+    let Some(window) = web_sys::window() else {
+        return;
+    };
+    let Some(document) = window.document() else {
+        return;
+    };
     let Some(body) = document.body() else { return };
 
     // ── READ PHASE ─────────────────────────────────────────────
@@ -220,10 +226,14 @@ pub fn lock() {
     // Store original body inline styles
     let body_style = body.style();
     let original_body = BodyStyles {
-        position: body_style.get_property_value("position").unwrap_or_default(),
+        position: body_style
+            .get_property_value("position")
+            .unwrap_or_default(),
         top: body_style.get_property_value("top").unwrap_or_default(),
         width: body_style.get_property_value("width").unwrap_or_default(),
-        overflow: body_style.get_property_value("overflow").unwrap_or_default(),
+        overflow: body_style
+            .get_property_value("overflow")
+            .unwrap_or_default(),
         padding_right: body_style
             .get_property_value("padding-right")
             .unwrap_or_default(),
@@ -372,7 +382,10 @@ pub fn lock() {
         // Compensate fixed-position elements
         for fr in &f_reads {
             let np = fr.computed_padding + scrollbar_width;
-            let _ = fr.el.style().set_property("padding-right", &format!("{np}px"));
+            let _ = fr
+                .el
+                .style()
+                .set_property("padding-right", &format!("{np}px"));
         }
     }
 
@@ -381,7 +394,10 @@ pub fn lock() {
         let _ = sr.el.style().set_property("overflow", "hidden");
         if sr.el_scrollbar > 0 {
             let np = sr.computed_padding + sr.el_scrollbar as f64;
-            let _ = sr.el.style().set_property("padding-right", &format!("{np}px"));
+            let _ = sr
+                .el
+                .style()
+                .set_property("padding-right", &format!("{np}px"));
         }
     }
 
@@ -439,7 +455,9 @@ pub fn is_locked() -> bool {
 // ── Internal ───────────────────────────────────────────────────────
 
 fn perform_unlock() {
-    let Some(window) = web_sys::window() else { return };
+    let Some(window) = web_sys::window() else {
+        return;
+    };
 
     STATE.with(|state| {
         let mut s = state.borrow_mut();
@@ -470,7 +488,11 @@ fn perform_unlock() {
 
         // Restore fixed-position elements
         for entry in &s.fixed {
-            set_style(&entry.element.style(), "padding-right", &entry.padding_right);
+            set_style(
+                &entry.element.style(),
+                "padding-right",
+                &entry.padding_right,
+            );
         }
 
         s.clear();

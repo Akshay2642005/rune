@@ -30,8 +30,8 @@ impl DatePickerState {
 
         // Effect to sync from URL to state
         Effect::new(move |_| {
-            let start = start_date_query.get();
-            let end = end_date_query.get();
+            let start = start_date_query();
+            let end = end_date_query();
 
             let start_date_parsed = DateUtils::parse_from_url(start);
             let end_date_parsed = DateUtils::parse_from_url(end);

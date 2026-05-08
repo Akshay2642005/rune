@@ -23,15 +23,15 @@ pub fn use_pagination() -> PaginationContext {
 
     let page_href = Callback::new(move |page: u32| {
         location.query.with(|q| {
-            let mut params: Vec<String> = q
-                .clone()
-                .into_iter()
-                .filter(|(key, _)| key != QUERY::PAGE)
-                .map(|(key, value)| format!("{}={}", key, value))
+            // Rebuild query string excluding PAGE param, then add new page
+            let search = leptos::prelude::window().location().search().unwrap_or_default();
+            let existing = if search.starts_with('?') { &search[1..] } else { &search };
+            let mut params: Vec<String> = existing
+                .split('&')
+                .filter(|s| !s.is_empty() && !s.starts_with(&format!("{}=", QUERY::PAGE)))
+                .map(|s| s.to_string())
                 .collect();
-
             params.push(format!("{}={}", QUERY::PAGE, page));
-
             format!("?{}", params.join("&"))
         })
     });
