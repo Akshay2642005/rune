@@ -10,6 +10,7 @@ tailwind-input-file = "style/tailwind.css"
 leptos = { workspace = true }
 leptos_router = { workspace = true }
 wasm-bindgen = { workspace = true }
+wasm-bindgen-futures = "0.4"
 console_error_panic_hook = { workspace = true }
 tw_merge.workspace = true
 icons.workspace = true
@@ -34,5 +35,10 @@ web-sys = { version = "0.3.98", features = [
     "Location",
     "DomRect",
     "Window",
+    "Request",
+    "RequestInit",
+    "RequestMode",
+    "Response",
+    "Headers",
 ] }
 validator = "0.20.0"

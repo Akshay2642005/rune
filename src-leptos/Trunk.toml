@@ -2,3 +2,8 @@
 target = "index.html"
 dist = "dist"
 public_url = "/"
+
+[[hooks]]
+stage = "build"
+command = "bunx"
+command_arguments = ["@tailwindcss/cli", "-i", "style/tailwind.css", "-o", "style/output.css"]
