@@ -1,5 +1,5 @@
-mod components;
 #![allow(non_snake_case)]
+mod components;
 
 use leptos::prelude::*;
 
