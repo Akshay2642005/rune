@@ -6,8 +6,11 @@ use axum::{
 };
 use sqlx::SqlitePool;
 
-/// Tower middleware that checks `Authorization: Bearer rune_sk_…` on every
-/// request to the control-plane router.
+use super::session::extract_session_key;
+
+/// Tower middleware that checks either:
+/// - `Authorization: Bearer rune_sk_…` header, or
+/// - `rune_session=…` httpOnly cookie
 pub async fn require_api_key(
     State(pool): State<SqlitePool>,
     req: Request,
@@ -25,14 +28,17 @@ pub async fn require_api_key(
         }
     }
 
+    // Accept Bearer token OR session cookie.
     let raw_key = req
         .headers()
         .get("authorization")
         .and_then(|v| v.to_str().ok())
         .and_then(|v| v.strip_prefix("Bearer "))
+        .map(|s| s.to_string())
+        .or_else(|| extract_session_key(req.headers()))
         .ok_or(StatusCode::UNAUTHORIZED)?;
 
-    let found = rune_registry::verify_api_key(&pool, raw_key)
+    let found = rune_registry::verify_api_key(&pool, &raw_key)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 

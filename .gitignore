@@ -2,3 +2,5 @@
 **/.zed/
 **/.rune/
 **/rune.*
+src-leptos/dist/
+**/node_modules/

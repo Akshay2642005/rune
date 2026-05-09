@@ -1,0 +1,3 @@
+base_color = "neutral"
+color_theme = "default"
+base_path_components = "src/components"

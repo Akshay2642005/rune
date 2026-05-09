@@ -1,0 +1,266 @@
+/* ─── Fonts ──────────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+
+/* ─── Tailwind v4 ────────────────────────────────────────────────────────── */
+@import "tailwindcss";
+@import "tw-animate-css";
+@source "../src/**/*.rs";
+
+/* ─── Theme tokens (replaces tailwind.config.js in v4) ──────────────────── */
+@theme {
+    --color-background: #f9f9ff;
+    --color-surface: #f9f9ff;
+    --color-surface-dim: #d3daef;
+    --color-surface-bright: #f9f9ff;
+    --color-surface-container-lowest: #ffffff;
+    --color-surface-container-low: #f1f3ff;
+    --color-surface-container: #e9edff;
+    --color-surface-container-high: #e1e8fd;
+    --color-surface-container-highest: #dce2f7;
+    --color-surface-variant: #dce2f7;
+    --color-surface-tint: #1357c9;
+    --color-on-background: #141b2b;
+    --color-on-surface: #141b2b;
+    --color-on-surface-variant: #434653;
+    --color-inverse-surface: #293040;
+    --color-inverse-on-surface: #edf0ff;
+    --color-inverse-primary: #b1c5ff;
+    --color-outline: #737785;
+    --color-outline-variant: #c3c6d6;
+    --color-primary: #003b93;
+    --color-on-primary: #ffffff;
+    --color-primary-container: #0051c3;
+    --color-on-primary-container: #beceff;
+    --color-primary-fixed: #dae2ff;
+    --color-primary-fixed-dim: #b1c5ff;
+    --color-on-primary-fixed: #001947;
+    --color-on-primary-fixed-variant: #00419f;
+    --color-secondary: #515f74;
+    --color-on-secondary: #ffffff;
+    --color-secondary-container: #d5e3fc;
+    --color-on-secondary-container: #57657a;
+    --color-secondary-fixed: #d5e3fc;
+    --color-secondary-fixed-dim: #b9c7df;
+    --color-on-secondary-fixed: #0d1c2e;
+    --color-on-secondary-fixed-variant: #3a485b;
+    --color-tertiary: #772600;
+    --color-on-tertiary: #ffffff;
+    --color-tertiary-container: #9e3500;
+    --color-on-tertiary-container: #ffc1ab;
+    --color-tertiary-fixed: #ffdbcf;
+    --color-tertiary-fixed-dim: #ffb59a;
+    --color-on-tertiary-fixed: #380d00;
+    --color-on-tertiary-fixed-variant: #802a00;
+    --color-error: #ba1a1a;
+    --color-on-error: #ffffff;
+    --color-error-container: #ffdad6;
+    --color-on-error-container: #93000a;
+    --color-success: #059669;
+    --color-warning: #d97706;
+    --color-code-bg: #111827;
+
+    --font-family-sans: Inter, sans-serif;
+    --font-family-mono: "JetBrains Mono", monospace;
+
+    --radius-sm: 0.125rem;
+    --radius: 0.25rem;
+    --radius-md: 0.375rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --radius-full: 9999px;
+
+    --shadow-card: 0px 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+
+    /* ── Spacing tokens ── */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-gutter: 16px;
+    --spacing-container-margin: 32px;
+
+    /* ── Font sizes (v4: --text-* maps to text-* utilities) ── */
+    --text-mono: 13px;
+    --text-label-caps: 12px;
+    --text-body-sm: 14px;
+    --text-body-md: 15px;
+    --text-h3: 17px;
+    --text-h2: 22px;
+    --text-h1: 28px;
+
+    /* ── Border radii ── */
+    --radius-DEFAULT: 0.125rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --radius-full: 9999px;
+}
+
+/* ─── CSS custom properties (mirror design tokens) ──────────────────────── */
+@layer base {
+    :root {
+        --color-background: #f9f9ff;
+        --color-surface: #f9f9ff;
+        --color-surface-dim: #d3daef;
+        --color-surface-container-lowest: #ffffff;
+        --color-surface-container-low: #f1f3ff;
+        --color-surface-container: #e9edff;
+        --color-surface-container-high: #e1e8fd;
+        --color-surface-container-highest: #dce2f7;
+        --color-on-surface: #141b2b;
+        --color-on-surface-variant: #434653;
+        --color-outline: #737785;
+        --color-outline-variant: #c3c6d6;
+        --color-primary: #003b93;
+        --color-on-primary: #ffffff;
+        --color-primary-container: #0051c3;
+        --color-on-primary-container: #beceff;
+        --color-secondary: #515f74;
+        --color-error: #ba1a1a;
+        --color-error-container: #ffdad6;
+        --color-on-error-container: #93000a;
+        --color-success: #059669;
+        --color-warning: #d97706;
+
+        --radius-sm: 0.125rem;
+        --radius: 0.25rem;
+        --radius-md: 0.375rem;
+        --radius-lg: 0.5rem;
+        --radius-xl: 0.75rem;
+
+        --shadow-card: 0px 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Smooth focus ring for accessibility */
+    *:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
+    html {
+        font-family: 'Inter', sans-serif;
+        color: var(--color-on-surface);
+        background-color: var(--color-background);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    html.dark {
+        --color-background: #111318;
+        --color-surface: #111318;
+        --color-surface-dim: #111318;
+        --color-surface-container-lowest: #0d0f14;
+        --color-surface-container-low: #191c23;
+        --color-surface-container: #1d2028;
+        --color-surface-container-high: #272a32;
+        --color-surface-container-highest: #32353d;
+        --color-on-surface: #e2e2ec;
+        --color-on-surface-variant: #c4c6d4;
+        --color-outline: #8e9099;
+        --color-outline-variant: #44474f;
+        --color-primary: #b1c5ff;
+        --color-on-primary: #002b75;
+        --color-primary-container: #0051c3;
+        --color-on-primary-container: #beceff;
+        --color-secondary: #b9c7df;
+        --color-error: #ffb4ab;
+        --color-error-container: #93000a;
+        --color-on-error-container: #ffdad6;
+        --color-success: #34d399;
+        --color-warning: #fbbf24;
+    }
+}
+
+/* ─── Material Symbols ───────────────────────────────────────────────────── */
+@layer base {
+    .material-symbols-outlined {
+        font-family: 'Material Symbols Outlined';
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        font-size: 24px;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        user-select: none;
+    }
+
+    .material-symbols-filled {
+        font-family: 'Material Symbols Outlined';
+        font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+}
+
+/* ─── Utility extensions ─────────────────────────────────────────────────── */
+@layer utilities {
+    .font-h1 {
+        font-size: 28px;
+        line-height: 36px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+    }
+
+    .font-h2 {
+        font-size: 22px;
+        line-height: 30px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+    }
+
+    .font-h3 {
+        font-size: 17px;
+        line-height: 26px;
+        font-weight: 600;
+    }
+
+    .font-body-md {
+        font-size: 15px;
+        line-height: 22px;
+        font-weight: 400;
+    }
+
+    .font-body-sm {
+        font-size: 14px;
+        line-height: 20px;
+        font-weight: 400;
+    }
+
+    .font-label-caps {
+        font-size: 12px;
+        line-height: 18px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+    }
+
+    .font-mono-text {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        line-height: 20px;
+    }
+
+    /* Ambient background blobs */
+    .bg-blob {
+        position: absolute;
+        border-radius: 9999px;
+        filter: blur(120px);
+        pointer-events: none;
+    }
+}
+
+/* ─── Animation: toast slide-in ─────────────────────────────────────────── */
+@keyframes slide-up {
+    from {
+        transform: translateY(16px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.animate-slide-up {
+    animation: slide-up 0.2s ease-out forwards;
+}

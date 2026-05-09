@@ -22,6 +22,7 @@ use hyper_util::{
 use rune_registry::InMemoryFunctionStore;
 use rune_runtime::Runtime;
 use tokio::net::TcpListener;
+use tower_http::services::{ServeDir, ServeFile};
 use tracing::{info, warn};
 use tracing_subscriber::{fmt, EnvFilter};
 
@@ -109,24 +110,38 @@ async fn main() -> Result<()> {
         },
     )?);
 
+    // ── Control-plane router (also merged into fn_router for browser access) ──
+    let api_state = ApiState {
+        pool: pool.clone(),
+        store: store.clone(),
+        wasm_dir,
+    };
+    let admin_router = api_router(api_state.clone());
+
+    // ── Static UI files ───────────────────────────────────────────────────────
+    let ui_dir = env("RUNE_UI_DIR", "src-leptos/dist");
+    let ui_fallback = format!("{ui_dir}/index.html");
+
     // ── Function-traffic router ───────────────────────────────────────────────
     let rt_state = RuntimeState {
         runtime: runtime.clone(),
         store: store.clone(),
         base_domain: base_domain.clone(),
     };
-    let fn_router = Router::new()
+    // Build the WASM handler sub-router with its own state first.
+    let wasm_router: Router = Router::new()
         .route("/", any(handler))
         .route("/{*path}", any(handler))
         .with_state(rt_state);
 
-    // ── Control-plane router ──────────────────────────────────────────────────
-    let api_state = ApiState {
-        pool: pool.clone(),
-        store: store.clone(),
-        wasm_dir,
-    };
-    let admin_router = api_router(api_state);
+    // Merge: /ui/* static files, /ui/session + /api/* control plane, then WASM functions.
+    let fn_router = Router::new()
+        .nest_service(
+            "/ui",
+            ServeDir::new(&ui_dir).fallback(ServeFile::new(&ui_fallback)),
+        )
+        .merge(api_router(api_state))
+        .merge(wasm_router);
 
     // ── TLS provisioning (when RUNE_DOMAIN is set) ────────────────────────────
     let tls_manager = if let (Some(domain), Some(email)) = (&base_domain, &acme_email) {

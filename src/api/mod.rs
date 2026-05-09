@@ -1,14 +1,14 @@
 pub mod auth;
 pub mod functions;
 pub mod keys;
+pub mod session;
 
-use axum::{middleware, Router};
+use axum::{middleware, routing::post, Router};
 use sqlx::SqlitePool;
 use std::sync::Arc;
 
 use rune_core::FunctionStore;
 
-/// Shared state injected into every control-plane handler.
 #[derive(Clone)]
 pub struct ApiState {
     pub pool: SqlitePool,
@@ -16,13 +16,13 @@ pub struct ApiState {
     pub wasm_dir: String,
 }
 
-/// Build the control-plane router.
-///
-/// All routes under `/api/` require a valid `Authorization: Bearer rune_sk_…`
-/// header, enforced by the `auth::require_api_key` middleware. The POST
-/// `/api/keys` endpoint is allowed through without auth only when there are no
-/// active API keys (bootstrap scenario).
 pub fn router(state: ApiState) -> Router {
+    // Unauthenticated: login sets cookie, logout clears it
+    let session_routes = Router::new()
+        .route("/ui/session", post(session::login).delete(session::logout))
+        .with_state(state.pool.clone());
+
+    // Protected API routes
     let protected = Router::new()
         .merge(functions::router())
         .merge(keys::router())
@@ -32,5 +32,7 @@ pub fn router(state: ApiState) -> Router {
         ))
         .with_state(state);
 
-    Router::new().nest("/api", protected)
+    Router::new()
+        .merge(session_routes)
+        .nest("/api", protected)
 }
