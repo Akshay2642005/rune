@@ -1,6 +1,6 @@
 [package]
 name = "rune-server"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2021"
 license = "MIT"
 description = "Sandboxed WASM function runtime server for the Rune platform."
@@ -82,7 +82,7 @@ time = { version = "0.3", features = ["wasm-bindgen"] }
 rune-core = { version = "0.2.2", path = "crates/core" }
 rune-registry = { version = "0.2.2", path = "crates/registry" }
 rune-runtime = { version = "0.2.2", path = "crates/runtime" }
-runectl = { version = "0.2.2", path = "crates/cli" }
+runectl = { version = "0.2.3", path = "crates/cli" }
 tw_merge = { version = "0.1.21", features = ["variant"] }
 icons = { version = "0.18.2", features = ["leptos"] }
 leptos_ui = "0.3.22"
