@@ -7,3 +7,11 @@ public_url = "/"
 stage = "build"
 command = "bunx"
 command_arguments = ["@tailwindcss/cli", "-i", "style/tailwind.css", "-o", "style/output.css"]
+
+[[proxy]]
+backend = "http://localhost:3000/ui/session"
+rewrite = "/ui/session"
+
+[[proxy]]
+backend = "http://localhost:3000/api"
+rewrite = "/api"
