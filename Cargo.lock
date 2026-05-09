@@ -3583,7 +3583,7 @@ dependencies = [
 
 [[package]]
 name = "rune-server"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "anyhow",
  "atty",
@@ -3636,7 +3636,7 @@ dependencies = [
 
 [[package]]
 name = "runectl"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "anyhow",
  "arboard",
