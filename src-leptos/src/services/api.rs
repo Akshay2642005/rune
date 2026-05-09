@@ -206,3 +206,24 @@ pub async fn deploy_function(req: super::types::FunctionDeployRequest) -> Result
         }
     }
 }
+
+/*
+ * @ API Keys
+ *
+ */
+
+pub async fn list_keys() -> Result<Vec<super::types::ApiKey>, String> {
+    let resp = fetch("GET", "/keys", None).await?;
+    if resp.status() == 401 {
+        return Err(format!("unauthorized"));
+    }
+
+    if resp.status() == 404 {
+        return Ok(vec![]);
+    }
+
+    let body = read_text(resp).await?;
+    let keys: Vec<super::types::ApiKey> =
+        serde_json::from_str(&body).map_err(|e| format!("{e:?}"))?;
+    Ok(keys)
+}

@@ -72,6 +72,30 @@
 
     --shadow-card: 0px 1px 3px rgba(0, 0, 0, 0.05);
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+
+    /* ── Spacing tokens ── */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-gutter: 16px;
+    --spacing-container-margin: 32px;
+
+    /* ── Font sizes (v4: --text-* maps to text-* utilities) ── */
+    --text-mono: 13px;
+    --text-label-caps: 12px;
+    --text-body-sm: 14px;
+    --text-body-md: 15px;
+    --text-h3: 17px;
+    --text-h2: 22px;
+    --text-h1: 28px;
+
+    /* ── Border radii ── */
+    --radius-DEFAULT: 0.125rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --radius-full: 9999px;
 }
 
 /* ─── CSS custom properties (mirror design tokens) ──────────────────────── */
@@ -171,40 +195,40 @@
 /* ─── Utility extensions ─────────────────────────────────────────────────── */
 @layer utilities {
     .font-h1 {
-        font-size: 24px;
-        line-height: 32px;
+        font-size: 28px;
+        line-height: 36px;
         font-weight: 600;
         letter-spacing: -0.02em;
     }
 
     .font-h2 {
-        font-size: 20px;
-        line-height: 28px;
+        font-size: 22px;
+        line-height: 30px;
         font-weight: 600;
         letter-spacing: -0.01em;
     }
 
     .font-h3 {
-        font-size: 16px;
-        line-height: 24px;
+        font-size: 17px;
+        line-height: 26px;
         font-weight: 600;
     }
 
     .font-body-md {
+        font-size: 15px;
+        line-height: 22px;
+        font-weight: 400;
+    }
+
+    .font-body-sm {
         font-size: 14px;
         line-height: 20px;
         font-weight: 400;
     }
 
-    .font-body-sm {
-        font-size: 13px;
-        line-height: 18px;
-        font-weight: 400;
-    }
-
     .font-label-caps {
-        font-size: 11px;
-        line-height: 16px;
+        font-size: 12px;
+        line-height: 18px;
         font-weight: 700;
         letter-spacing: 0.05em;
     }

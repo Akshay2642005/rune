@@ -8,16 +8,14 @@ pub struct FunctionRecord {
     pub id: String,
     pub route: String,
     pub subdomain: Option<String>,
-    pub created_at: String,
+    pub wasm_path: String,
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct ApiKey {
     pub id: String,
     pub name: String,
-    pub prefix: String,
-    pub created_at: String,
-    pub revoked_at: Option<String>,
+    pub created_at: i64,
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]

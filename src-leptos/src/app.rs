@@ -1,5 +1,6 @@
 use crate::components::ui::sonner::Toaster;
 use crate::components::ui::toast_context::ToastContext;
+use crate::components::search_context::SearchContext;
 use crate::pages::{
     dashboard::{KeysPage, WorkersPage},
     login::LoginPage,
@@ -18,6 +19,7 @@ use leptos_router::{
 pub fn App() -> impl IntoView {
     let auth = AuthContext::provide_and_get();
     ToastContext::provide();
+    SearchContext::provide();
     let theme = ThemeMode::init();
 
     // Apply/remove "dark" class on <html> whenever theme changes
